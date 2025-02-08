@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="relative min-h-screen flex flex-col items-center justify-center bg-black text-white p-6 overflow-hidden">
+    <!-- Dynamic Background with Animated Waves -->
+    <div class="absolute inset-0 w-full h-full">
+        <svg class="absolute top-0 left-0 w-full h-full opacity-10" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#1E40AF" fill-opacity="0.7" d="M0,64L40,96C80,128,160,192,240,192C320,192,400,128,480,106.7C560,85,640,107,720,106.7C800,107,880,85,960,96C1040,107,1120,149,1200,144C1280,139,1360,85,1400,64L1440,32L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"></path>
+        </svg>
+    </div>
+
+    <!-- Main Heading with Glitch Effect -->
+    <h1 class="text-7xl font-extrabold relative z-10 glitch-text">
+        Hey, I'm <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Levi</span>
+    </h1>
+
+    <!-- Animated Typewriter Effect -->
+    <p class="text-3xl mt-4 font-semibold relative z-10">
+        <span class="typewriter text-blue-300"></span>
+    </p>
+
+    <!-- About Text with Subtle Scroll Animation -->
+    <p class="mt-6 max-w-3xl text-center text-gray-400 text-lg leading-relaxed relative z-10 opacity-0 animate-fade-in">
+        I build immersive and scalable web applications, blending creativity with technology. Let’s create something extraordinary!
+    </p>
+
+    <!-- Action Buttons with Neon Glow -->
+    <div class="mt-8 flex space-x-6 relative z-10">
+        <a href="{{ url_for('projects') }}" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gradient-to-r from-blue-500 to-purple-500 transform hover:scale-110 transition-all duration-300 hover:shadow-blue-500/50">See My Work</a>
+        <a href="#contact" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gray-800 transform hover:scale-110 transition-all duration-300 hover:shadow-gray-500/50">Contact Me</a>
+    </div>
+</div>
+
+<!-- Typewriter Effect -->
+<script>
+    const statements = [
+        "I am A full Stack Software Developer.",
+        "I craft innovative digital experiences, blending technology and creativity.",
+        "Let me show you some of my work.",
+        "Click the buttons below or let me guide you automatically."
+    ];
+
+    let index = 0, charIndex = 0;
+    const typewriterElement = document.querySelector(".typewriter");
+
+    function typeEffect() {
+        if (charIndex < statements[index].length) {
+            typewriterElement.textContent += statements[index].charAt(charIndex);
+            charIndex++;
+            setTimeout(typeEffect, 60);
+        } else {
+            if (index === statements.length - 1) {
+                setTimeout(startCountdown, 2000); // Start countdown after the last sentence
+            } else {
+                setTimeout(eraseEffect, 2000);
+            }
+        }
+    }
+
+    function eraseEffect() {
+        if (charIndex > 0) {
+            typewriterElement.textContent = statements[index].substring(0, charIndex - 1);
+            charIndex--;
+            setTimeout(eraseEffect, 30);
+        } else {
+            index = (index + 1) % statements.length;
+            setTimeout(typeEffect, 500);
+        }
+    }
+
+    function startCountdown() {
+        let countdown = 5;
+        let countdownText = `Redirecting in ${countdown}...`;
+        typewriterElement.textContent = countdownText;
+
+        const interval = setInterval(() => {
+            countdown--;
+            countdownText = `Redirecting in ${countdown}...`;
+            typewriterElement.textContent = countdownText; // Update countdown text
+            if (countdown <= 0) {
+                clearInterval(interval);
+                window.location.href = "/projects"; // Redirect to /projects after countdown
+            }
+        }, 1000);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => setTimeout(typeEffect, 500));
+</script>
+
+<!-- Glitch Effect -->
+<style>
+    .glitch-text {
+        position: relative;
+        animation: glitch 1s infinite;
+    }
+    @keyframes glitch {
+        0% { text-shadow: 2px 2px 5px rgba(0, 255, 255, 0.3); }
+        50% { text-shadow: -2px -2px 5px rgba(255, 0, 255, 0.3); }
+        100% { text-shadow: 2px 2px 5px rgba(0, 255, 255, 0.3); }
+    }
+    .animate-fade-in {
+        animation: fadeIn 1.5s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,185 @@
+{# templates/admin/edit_project.html #}
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Project</h2>
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="category" class="form-label">Project Category*</label>
+            <select class="form-select" id="category" name="category" required onchange="updateTechnologies()">
+                <option value="">Select a category</option>
+                {% for category in Project.get_categories() %}
+                <option value="{{ category }}" {% if project.Category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+            <div class="invalid-feedback">Please select a category.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="project_name" class="form-label">Project Name*</label>
+            <input type="text" class="form-control" id="project_name" name="project_name" value="{{ project.ProjectName }}" required>
+            <div class="invalid-feedback">Please provide a project name.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description*</label>
+            <textarea class="form-control" id="description" name="description" rows="4" required>{{ project.Description }}</textarea>
+            <div class="invalid-feedback">Please provide a description.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="technologies" class="form-label">Technologies Used*</label>
+            <select class="form-select" id="technologies" name="technologies" multiple required>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            <div class="invalid-feedback">Please select at least one technology.</div>
+            <small class="text-muted">Hold Ctrl/Cmd to select multiple technologies</small>
+        </div>
+
+        <div class="mb-3">
+            <label for="github_link" class="form-label">GitHub Link</label>
+            <input type="url" class="form-control" id="github_link" name="github_link" value="{{ project.GitHubLink }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="preview_link" class="form-label">Preview Link</label>
+            <input type="url" class="form-control" id="preview_link" name="preview_link" value="{{ project.PreviewLink }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="date_started" class="form-label">Date Started*</label>
+            <input type="date" class="form-control" id="date_started" name="date_started" value="{{ project.DateStarted|default('', true)|string }}" required>
+            <div class="invalid-feedback">Please provide a start date.</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="date_completed" class="form-label">Date Completed</label>
+            <input type="date" class="form-control" id="date_completed" name="date_completed" value="{{ project.DateCompleted|default('', true)|string }}">
+        </div>
+
+        <!-- Existing Screenshots -->
+        {% if project.screenshots %}
+        <div class="mb-3">
+            <label class="form-label">Current Screenshots</label>
+            <div id="existing-screenshots" class="row">
+                {% for screenshot in project.screenshots %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename=screenshot.filename) }}" class="card-img-top" alt="Project Screenshot">
+                        <div class="card-body">
+                            <input type="text" class="form-control mb-2" name="existing_captions" value="{{ screenshot.caption }}" placeholder="Caption">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="keep_screenshot" value="{{ screenshot.id }}" id="keep_{{ screenshot.id }}" checked>
+                                <label class="form-check-label" for="keep_{{ screenshot.id }}">Keep this screenshot</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- New Screenshots -->
+        <div class="mb-3">
+            <label class="form-label">Add New Screenshots</label>
+            <div id="screenshot-container">
+                <div class="screenshot-entry mb-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="file" class="form-control" name="new_screenshots" accept="image/*">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="new_captions" placeholder="Caption (optional)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-secondary mt-2" onclick="addScreenshotField()">Add Another Screenshot</button>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Project</button>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<script>
+const technologies = {{ Project.get_technologies()|tojson|safe }};
+const categorizedTech = {{ TECHNOLOGIES|tojson|safe }};
+const currentTechnologies = {{ project.technologies_list|tojson|safe }};
+
+function updateTechnologies() {
+    const category = document.getElementById('category').value;
+    const techSelect = document.getElementById('technologies');
+    techSelect.innerHTML = '';
+
+    const relevantTech = category ? categorizedTech[category] : technologies;
+
+    relevantTech.forEach(tech => {
+        const option = new Option(tech, tech);
+        option.selected = currentTechnologies.includes(tech);
+        techSelect.add(option);
+    });
+}
+
+function addScreenshotField() {
+    const container = document.getElementById('screenshot-container');
+    const newEntry = document.createElement('div');
+    newEntry.className = 'screenshot-entry mb-2';
+    newEntry.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <input type="file" class="form-control" name="new_screenshots" accept="image/*">
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="new_captions" placeholder="Caption (optional)">
+            </div>
+        </div>
+    `;
+    container.appendChild(newEntry);
+}
+
+// Initialize drag and drop for screenshots
+if (typeof Sortable !== 'undefined') {
+    new Sortable(document.getElementById('existing-screenshots'), {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        onEnd: function(evt) {
+            const newOrder = {};
+            document.querySelectorAll('#existing-screenshots .card').forEach((card, index) => {
+                const screenshotId = card.querySelector('input[name="keep_screenshot"]').value;
+                newOrder[screenshotId] = index;
+            });
+
+            // Send new order to server
+            fetch(`/admin/project/${projectId}/reorder_screenshots`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order: newOrder })
+            });
+        }
+    });
+}
+
+// Form validation
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Initialize technologies on page load
+updateTechnologies();
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-gray-900 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a class="text-lg font-semibold" href="{{ url_for('admin_dashboard') }}">Admin Panel</a>
+            <button class="md:hidden block text-white focus:outline-none" id="menu-toggle">
+                &#9776;
+            </button>
+            <ul class="hidden md:flex space-x-4" id="menu">
+                <li><a class="hover:text-gray-300" href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                <li><a class="hover:text-gray-300" href="{{ url_for('add_project') }}">Add Project</a></li>
+                <li><a class="hover:text-gray-300" href="{{ url_for('add_work_experience') }}">Add Work Experience</a></li>
+                <li><a class="text-red-400 hover:text-red-600" href="{{ url_for('admin_logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-4 p-4">
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="bg-{{ category }}-100 border-l-4 border-{{ category }}-500 text-{{ category }}-700 p-4 mb-4" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            document.getElementById('menu').classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

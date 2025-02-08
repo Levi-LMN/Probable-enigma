@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown to Amazing</title>
+    <link rel="icon" href="https://m.media-amazon.com/images/I/51r-lgDllrL.jpg">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-200 via-purple-300 to-purple-400 flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Background animations remain the same -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute w-96 h-96 bg-purple-400/30 rounded-full blur-3xl -top-20 -left-20 animate-pulse"></div>
+        <div class="absolute w-96 h-96 bg-purple-500/30 rounded-full blur-3xl -bottom-20 -right-20 animate-pulse" style="animation-delay: 1s;"></div>
+    </div>
+
+    <!-- Modal 1 -->
+    <div id="notifyModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-8 max-w-md mx-4 animate__animated animate__bounceIn">
+            <h3 class="text-2xl font-bold text-purple-600 mb-4">Time Check! ⏰</h3>
+            <p class="text-gray-700 mb-6" id="modalMessage"></p>
+            <div class="flex justify-end gap-4">
+                <button onclick="closeModal('notifyModal')" class="px-6 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700">Back to counting! ⏳</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2 -->
+    <div id="learnModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl p-8 max-w-md mx-4 animate__animated animate__bounceIn">
+            <h3 class="text-2xl font-bold text-purple-600 mb-4">Countdown Update! 🎯</h3>
+            <p class="text-gray-700 mb-6" id="spoilerMessage"></p>
+            <div class="flex justify-end">
+                <button onclick="closeModal('learnModal')" class="px-6 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700">Can't wait! 💜</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl w-full relative">
+        <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-12 border border-purple-200">
+            <div class="animate-fadeIn">
+                <h1 class="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 bg-clip-text text-transparent mb-4 animate__animated animate__fadeInDown">
+                    The Countdown!
+                </h1>
+
+                <p id="dailyMessage" class="text-xl text-purple-600 mb-8 font-medium"></p>
+
+                <!-- Countdown boxes remain the same -->
+                <div class="flex flex-wrap justify-center gap-6 mb-12">
+                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
+                        <span id="days" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
+                        <span class="text-sm text-gray-600 font-medium">Days</span>
+                    </div>
+                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
+                        <span id="hours" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
+                        <span class="text-sm text-gray-600 font-medium">Hours</span>
+                    </div>
+                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
+                        <span id="minutes" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
+                        <span class="text-sm text-gray-600 font-medium">Minutes</span>
+                    </div>
+                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
+                        <span id="seconds" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
+                        <span class="text-sm text-gray-600 font-medium">Seconds</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-6">
+                    <button onclick="openModal('notifyModal')" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+                        Time Check! ⏰
+                    </button>
+                    <button onclick="openModal('learnModal')" class="px-8 py-3 bg-white/80 text-purple-700 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-purple-200">
+                        Countdown Update! 🎯
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const countDownDate = new Date("Feb 26, 2025 00:00:00").getTime();
+
+        const dailyMessages = [
+            "Every tick brings us closer to something amazing! ✨",
+            "Time flies when you're counting down to greatness! 🚀",
+            "Another day closer to the big reveal! 🎉",
+            "Tick tock, making every second count! ⏱️",
+            "The countdown continues, and so does the excitement! 🌟",
+            "Each moment is precious in this purple countdown! 💜",
+            "Keep watching, something wonderful is coming! 🎯"
+        ];
+
+        const modalMessages = [
+            `Only ${Math.floor((countDownDate - new Date().getTime()) / (1000 * 60 * 60 * 24))} days to go! Time is flying faster than a sugar-rushed unicorn! 🦄`,
+            "Breaking news: This countdown is almost as exciting as you are! 📢",
+            "Tick tock, the clock says you're awesome o'clock! ⏰",
+            "Warning: Excessive countdown excitement detected! 🚨",
+            "Time check: Still counting, still amazing! ⌛",
+            "Countdown status: As purple and perfect as ever! 💜",
+            "Time flies when you're being fabulous! ✨"
+        ];
+
+        const spoilerMessages = [
+            "Each second brings us closer to the most purple-tastic day ever! 💜",
+            "The countdown says: Keep being amazing! ⏳",
+            "Fun fact: This countdown loves purple almost as much as you do! 🎨",
+            "Psst... the countdown thinks you're doing great! 🌟",
+            "Secret time: Every second counts, just like you! ⏰",
+            "Confidential: This is the most stylish countdown ever! 👑",
+            "The countdown whispers: You're worth the wait! 💫"
+        ];
+
+        function getDailyIndex() {
+            const today = new Date();
+            return (today.getDate() + today.getMonth()) % dailyMessages.length;
+        }
+
+        function updateMessages() {
+            const index = getDailyIndex();
+            document.getElementById('dailyMessage').textContent = dailyMessages[index];
+            document.getElementById('modalMessage').textContent = modalMessages[index];
+            document.getElementById('spoilerMessage').textContent = spoilerMessages[index];
+        }
+
+        const updateCountdown = () => {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").textContent = days.toString().padStart(2, '0');
+            document.getElementById("hours").textContent = hours.toString().padStart(2, '0');
+            document.getElementById("minutes").textContent = minutes.toString().padStart(2, '0');
+            document.getElementById("seconds").textContent = seconds.toString().padStart(2, '0');
+        };
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+        updateMessages();
+    </script>
+</body>
+</html>

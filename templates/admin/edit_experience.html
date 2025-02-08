@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<h2>Edit Work Experience</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    <label for="company_name">Company Name:</label>
+    <input type="text" name="company_name" id="company_name" value="{{ experience.CompanyName }}" required>
+
+    <label for="position">Position:</label>
+    <input type="text" name="position" id="position" value="{{ experience.Position }}" required>
+
+    <label for="description">Description:</label>
+    <textarea name="description" id="description" required>{{ experience.Description }}</textarea>
+
+    <label for="location">Location:</label>
+    <input type="text" name="location" id="location" value="{{ experience.Location }}" required>
+
+    <label for="technologies">Technologies Used:</label>
+    <input type="text" name="technologies" id="technologies" value="{{ experience.Technologies }}">
+
+    <label for="start_date">Start Date:</label>
+    <input type="date" name="start_date" id="start_date" value="{{ experience.StartDate }}">
+
+    <label for="end_date">End Date:</label>
+    <input type="date" name="end_date" id="end_date" value="{{ experience.EndDate }}">
+
+    <label for="is_current">Current Job:</label>
+    <input type="checkbox" name="is_current" id="is_current" {% if experience.IsCurrentJob %} checked {% endif %}>
+
+    <label for="company_logo">Company Logo:</label>
+    {% if experience.CompanyLogo %}
+        <img src="{{ url_for('static', filename=experience.CompanyLogo) }}" alt="Company Logo" width="150">
+    {% endif %}
+    <input type="file" name="company_logo" id="company_logo">
+
+    <button type="submit">Update Experience</button>
+</form>
+
+<a href="{{ url_for('admin_dashboard') }}">Back to Dashboard</a>
+{% endblock %}

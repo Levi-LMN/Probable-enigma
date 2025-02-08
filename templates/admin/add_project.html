@@ -1,0 +1,106 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-6 p-6 bg-white shadow-lg rounded-lg">
+    <h2 class="text-2xl font-bold mb-4">Add New Project</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
+        <div>
+            <label for="category" class="block font-medium">Project Category*</label>
+            <select class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="category" name="category" required onchange="updateTechnologies()">
+                <option value="">Select a category</option>
+                {% for category in Project.get_categories() %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+            <p class="text-red-500 hidden">Please select a category.</p>
+        </div>
+
+        <div>
+            <label for="project_name" class="block font-medium">Project Name*</label>
+            <input type="text" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="project_name" name="project_name" required>
+            <p class="text-red-500 hidden">Please provide a project name.</p>
+        </div>
+
+        <div>
+            <label for="description" class="block font-medium">Description*</label>
+            <textarea class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="description" name="description" rows="4" required></textarea>
+            <p class="text-red-500 hidden">Please provide a description.</p>
+        </div>
+
+        <div>
+            <label for="technologies" class="block font-medium">Technologies Used*</label>
+            <select class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="technologies" name="technologies" multiple required>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            <p class="text-red-500 hidden">Please select at least one technology.</p>
+            <small class="text-gray-500">Hold Ctrl/Cmd to select multiple technologies</small>
+        </div>
+
+        <div>
+            <label for="github_link" class="block font-medium">GitHub Link</label>
+            <input type="url" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="github_link" name="github_link">
+        </div>
+
+        <div>
+            <label for="preview_link" class="block font-medium">Preview Link</label>
+            <input type="url" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="preview_link" name="preview_link">
+        </div>
+
+        <div>
+            <label for="date_started" class="block font-medium">Date Started*</label>
+            <input type="date" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="date_started" name="date_started" required>
+            <p class="text-red-500 hidden">Please provide a start date.</p>
+        </div>
+
+        <div>
+            <label for="date_completed" class="block font-medium">Date Completed</label>
+            <input type="date" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="date_completed" name="date_completed">
+        </div>
+
+        <div>
+            <label class="block font-medium">Project Screenshots</label>
+            <div id="screenshot-container">
+                <div class="screenshot-entry mb-2 flex space-x-2">
+                    <input type="file" class="w-1/2 p-2 border rounded" name="screenshots" accept="image/*">
+                    <input type="text" class="w-1/2 p-2 border rounded" name="captions" placeholder="Caption (optional)">
+                </div>
+            </div>
+            <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-2" onclick="addScreenshotField()">Add Another Screenshot</button>
+        </div>
+
+        <div class="flex space-x-4">
+            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded">Add Project</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="bg-gray-500 text-white px-6 py-2 rounded">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const technologies = {{ Project.get_technologies()|tojson|safe }};
+const categorizedTech = {{ TECHNOLOGIES|tojson|safe }};
+
+function updateTechnologies() {
+    const category = document.getElementById('category').value;
+    const techSelect = document.getElementById('technologies');
+    techSelect.innerHTML = '';
+
+    const relevantTech = category ? categorizedTech[category] : technologies;
+
+    relevantTech.forEach(tech => {
+        const option = new Option(tech, tech);
+        techSelect.add(option);
+    });
+}
+
+function addScreenshotField() {
+    const container = document.getElementById('screenshot-container');
+    const newEntry = document.createElement('div');
+    newEntry.className = 'screenshot-entry mb-2 flex space-x-2';
+    newEntry.innerHTML = `
+        <input type="file" class="w-1/2 p-2 border rounded" name="screenshots" accept="image/*">
+        <input type="text" class="w-1/2 p-2 border rounded" name="captions" placeholder="Caption (optional)">
+    `;
+    container.appendChild(newEntry);
+}
+</script>
+{% endblock %}
