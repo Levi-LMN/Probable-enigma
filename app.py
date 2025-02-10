@@ -434,19 +434,22 @@ def delete_project(project_id):
     project = Project.query.get_or_404(project_id)
 
     try:
-        # Delete screenshot file if it exists
-        if project.Screenshot:
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], project.Screenshot.split('/')[-1])
+        # Delete all screenshot files associated with the project
+        for screenshot in project.screenshots:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], screenshot.filename.split('/')[-1])
             if os.path.exists(file_path):
                 os.remove(file_path)
 
+        # The project and its associated screenshots and technologies will be deleted
+        # automatically due to the cascade relationship
         db.session.delete(project)
         db.session.commit()
         flash('Project deleted successfully!', 'success')
-        return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 500
+        flash(f'Error deleting project: {str(e)}', 'danger')
+
+    return redirect(url_for('admin_dashboard'))  # Redirect to the admin dashboard or relevant page
 
 
 @app.route('/admin/experience/<int:experience_id>/edit', methods=['GET', 'POST'])

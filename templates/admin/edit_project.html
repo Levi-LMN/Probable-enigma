@@ -130,45 +130,76 @@ const technologies = {
     {% endfor %}
 };
 
+// Initialize with existing technologies from the database
 const selectedTechs = new Set({{ project.technologies_list|tojson }});
+const allUsedTechs = new Set(); // Track all technologies that have been used
+
+function createTechTag(tech) {
+    const tag = document.createElement('div');
+    tag.className = 'inline-flex items-center bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-sm';
+    tag.innerHTML = `
+        ${tech}
+        <button type="button" class="ml-2 text-blue-700 hover:text-blue-900" onclick="removeTechnology('${tech}')">
+            ×
+        </button>
+    `;
+    return tag;
+}
+
+function removeTechnology(tech) {
+    selectedTechs.delete(tech);
+    allUsedTechs.delete(tech);
+    updateTechDisplay();
+    updateTechnologies(); // Refresh available technologies
+}
+
+function updateTechDisplay() {
+    const display = document.getElementById('selected-techs-display');
+    const hiddenInput = document.getElementById('selected-technologies');
+
+    // Clear current display
+    display.innerHTML = '';
+
+    // Add tags for each selected technology
+    selectedTechs.forEach(tech => {
+        display.appendChild(createTechTag(tech));
+    });
+
+    // Update hidden input
+    hiddenInput.value = Array.from(selectedTechs).join(',');
+}
 
 function updateTechnologies() {
     const category = document.getElementById('category').value;
     const container = document.getElementById('tech-container');
-    const hiddenInput = document.getElementById('selected-technologies');
 
     container.innerHTML = '';
 
     if (category && technologies[category]) {
         technologies[category].forEach(tech => {
+            // Skip if already selected
+            if (selectedTechs.has(tech)) return;
+
             const div = document.createElement('div');
             div.className = 'flex items-center';
 
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.value = tech;
-            checkbox.checked = selectedTechs.has(tech);
-            checkbox.className = 'w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500';
-            checkbox.onchange = function() {
-                if (this.checked) {
-                    selectedTechs.add(this.value);
-                } else {
-                    selectedTechs.delete(this.value);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'text-left w-full px-3 py-2 text-sm rounded-lg hover:bg-blue-50 transition-colors ' +
+                             'text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500';
+            button.textContent = tech;
+            button.onclick = function() {
+                if (!selectedTechs.has(tech)) {
+                    selectedTechs.add(tech);
+                    updateTechDisplay();
+                    updateTechnologies(); // Refresh available technologies
                 }
-                hiddenInput.value = Array.from(selectedTechs).join(',');
             };
 
-            const label = document.createElement('label');
-            label.className = 'ml-2 text-sm text-gray-700';
-            label.textContent = tech;
-
-            div.appendChild(checkbox);
-            div.appendChild(label);
+            div.appendChild(button);
             container.appendChild(div);
         });
     }
-
-    hiddenInput.value = Array.from(selectedTechs).join(',');
 }
 
 function addScreenshotField() {
@@ -184,7 +215,13 @@ function addScreenshotField() {
     container.appendChild(div);
 }
 
-document.addEventListener('DOMContentLoaded', updateTechnologies);
+// Initialize the display on page load
+document.addEventListener('DOMContentLoaded', () => {
+    updateTechDisplay();
+    updateTechnologies();
+});
+
+// Update available technologies when category changes
 document.getElementById('category').addEventListener('change', updateTechnologies);
 </script>
 {% endblock %}
