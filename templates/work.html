@@ -36,8 +36,10 @@
                 </div>
 
                 <div class="mt-4 text-gray-700 leading-relaxed">
-                    <p class="line-clamp-3 sm:line-clamp-none">{{ experience.Description }}</p>
-                    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2 sm:hidden">Read more</button>
+                    <p class="line-clamp-3 sm:line-clamp-none" id="description-{{ loop.index }}">{{ experience.Description }}</p>
+                    <button onclick="openModal('{{ loop.index }}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2 sm:hidden">
+                        Read more
+                    </button>
                 </div>
 
                 {% if experience.Technologies %}
@@ -57,4 +59,54 @@
     </div>
     {% endfor %}
 </div>
+
+<!-- Modal -->
+<div id="descriptionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="modalTitle" class="text-xl font-semibold text-gray-900"></h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="modalContent" class="text-gray-700"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openModal(index) {
+    const modal = document.getElementById('descriptionModal');
+    const description = document.getElementById(`description-${index}`).textContent;
+    const title = document.querySelector(`#description-${index}`).closest('.flex-1').querySelector('h2').textContent;
+
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalContent').textContent = description;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = document.getElementById('descriptionModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.getElementById('descriptionModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
 {% endblock %}
