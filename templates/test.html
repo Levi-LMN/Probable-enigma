@@ -1,155 +1,311 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown to Amazing</title>
-    <link rel="icon" href="https://m.media-amazon.com/images/I/51r-lgDllrL.jpg">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <title>Advanced Gestalt Principles in UI Design</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #dc2626;
+            --neutral: #1e293b;
+            --bg: #f8fafc;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--bg);
+        }
+
+        .principle-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .principle-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .demo-container {
+            background: white;
+            padding: 40px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Proximity Example - Navigation Menu */
+        .nav-menu {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+        }
+
+        .nav-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .nav-item:hover {
+            transform: scale(1.1);
+        }
+
+        /* Similarity Example - Dashboard Cards */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .revenue {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .users {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .orders {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        /* Continuation Example - Progress Steps */
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            height: 3px;
+            background: var(--primary);
+            top: 50%;
+            left: 0;
+            right: 0;
+            z-index: 1;
+        }
+
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--primary);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .step:hover {
+            transform: scale(1.2);
+        }
+
+        /* Closure Example - Icon Set */
+        .icon-set {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .icon {
+            width: 60px;
+            height: 60px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .icon-line {
+            position: absolute;
+            background: var(--neutral);
+            transition: transform 0.3s;
+        }
+
+        .menu-icon .icon-line {
+            width: 100%;
+            height: 3px;
+            left: 0;
+        }
+
+        .menu-icon .line1 { top: 15px; }
+        .menu-icon .line2 { top: 28px; }
+        .menu-icon .line3 { top: 41px; }
+
+        .menu-icon:hover .line1 { transform: rotate(45deg) translate(8px, 8px); }
+        .menu-icon:hover .line2 { opacity: 0; }
+        .menu-icon:hover .line3 { transform: rotate(-45deg) translate(8px, -8px); }
+
+        /* Figure/Ground Example - Cards */
+        .card-stack {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 0 auto;
+        }
+
+        .stack-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--neutral);
+        }
+
+        .card-1 { transform: rotate(-5deg); background: #bfdbfe; }
+        .card-2 { transform: rotate(0deg); background: #93c5fd; }
+        .card-3 { transform: rotate(5deg); background: #60a5fa; }
+
+        .card-stack:hover .card-1 { transform: rotate(-15deg) translateX(-20px); }
+        .card-stack:hover .card-3 { transform: rotate(15deg) translateX(20px); }
+
+        h1 {
+            color: var(--neutral);
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: var(--neutral);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        p {
+            color: #475569;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-purple-200 via-purple-300 to-purple-400 flex items-center justify-center p-4 relative overflow-hidden">
-    <!-- Background animations remain the same -->
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute w-96 h-96 bg-purple-400/30 rounded-full blur-3xl -top-20 -left-20 animate-pulse"></div>
-        <div class="absolute w-96 h-96 bg-purple-500/30 rounded-full blur-3xl -bottom-20 -right-20 animate-pulse" style="animation-delay: 1s;"></div>
-    </div>
+<body>
+    <h1>Advanced Gestalt Principles in UI Design</h1>
 
-    <!-- Modal 1 -->
-    <div id="notifyModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div class="bg-white rounded-3xl p-8 max-w-md mx-4 animate__animated animate__bounceIn">
-            <h3 class="text-2xl font-bold text-purple-600 mb-4">Time Check! ⏰</h3>
-            <p class="text-gray-700 mb-6" id="modalMessage"></p>
-            <div class="flex justify-end gap-4">
-                <button onclick="closeModal('notifyModal')" class="px-6 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700">Back to counting! ⏳</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal 2 -->
-    <div id="learnModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-        <div class="bg-white rounded-3xl p-8 max-w-md mx-4 animate__animated animate__bounceIn">
-            <h3 class="text-2xl font-bold text-purple-600 mb-4">Countdown Update! 🎯</h3>
-            <p class="text-gray-700 mb-6" id="spoilerMessage"></p>
-            <div class="flex justify-end">
-                <button onclick="closeModal('learnModal')" class="px-6 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700">Can't wait! 💜</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="max-w-4xl w-full relative">
-        <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-12 border border-purple-200">
-            <div class="animate-fadeIn">
-                <h1 class="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-600 via-purple-500 to-purple-700 bg-clip-text text-transparent mb-4 animate__animated animate__fadeInDown">
-                    The Countdown!
-                </h1>
-
-                <p id="dailyMessage" class="text-xl text-purple-600 mb-8 font-medium"></p>
-
-                <!-- Countdown boxes remain the same -->
-                <div class="flex flex-wrap justify-center gap-6 mb-12">
-                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
-                        <span id="days" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
-                        <span class="text-sm text-gray-600 font-medium">Days</span>
-                    </div>
-                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
-                        <span id="hours" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
-                        <span class="text-sm text-gray-600 font-medium">Hours</span>
-                    </div>
-                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
-                        <span id="minutes" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
-                        <span class="text-sm text-gray-600 font-medium">Minutes</span>
-                    </div>
-                    <div class="w-24 h-24 bg-white/80 rounded-2xl shadow-lg flex flex-col items-center justify-center transform hover:scale-105 transition-transform duration-300 border border-purple-200">
-                        <span id="seconds" class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-purple-800 bg-clip-text text-transparent">00</span>
-                        <span class="text-sm text-gray-600 font-medium">Seconds</span>
-                    </div>
+    <div class="principle-card">
+        <h2>Proximity in Navigation</h2>
+        <p>Related navigation items are grouped together, creating clear sections in the menu.</p>
+        <div class="demo-container">
+            <nav class="nav-menu">
+                <div class="nav-group">
+                    <div class="nav-item">Home</div>
+                    <div class="nav-item">About</div>
+                    <div class="nav-item">Contact</div>
                 </div>
+                <div class="nav-group">
+                    <div class="nav-item">Login</div>
+                    <div class="nav-item">Register</div>
+                </div>
+            </nav>
+        </div>
+    </div>
 
-                <div class="flex justify-center gap-6">
-                    <button onclick="openModal('notifyModal')" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-800 text-white rounded-full font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
-                        Time Check! ⏰
-                    </button>
-                    <button onclick="openModal('learnModal')" class="px-8 py-3 bg-white/80 text-purple-700 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 border border-purple-200">
-                        Countdown Update! 🎯
-                    </button>
+    <div class="principle-card">
+        <h2>Similarity in Dashboard Stats</h2>
+        <p>Statistical cards share similar layouts but use different colors to indicate different data types.</p>
+        <div class="demo-container">
+            <div class="dashboard">
+                <div class="stat-card revenue">
+                    <h3>Revenue</h3>
+                    <p>$50,000</p>
+                </div>
+                <div class="stat-card users">
+                    <h3>Users</h3>
+                    <p>1,234</p>
+                </div>
+                <div class="stat-card orders">
+                    <h3>Orders</h3>
+                    <p>89</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        const countDownDate = new Date("Feb 26, 2025 00:00:00").getTime();
+    <div class="principle-card">
+        <h2>Continuation in Progress Steps</h2>
+        <p>The eye naturally follows the connected steps in this progress indicator.</p>
+        <div class="demo-container">
+            <div class="progress-steps">
+                <div class="progress-line"></div>
+                <div class="step">1</div>
+                <div class="step">2</div>
+                <div class="step">3</div>
+                <div class="step">4</div>
+            </div>
+        </div>
+    </div>
 
-        const dailyMessages = [
-            "Every tick brings us closer to something amazing! ✨",
-            "Time flies when you're counting down to greatness! 🚀",
-            "Another day closer to the big reveal! 🎉",
-            "Tick tock, making every second count! ⏱️",
-            "The countdown continues, and so does the excitement! 🌟",
-            "Each moment is precious in this purple countdown! 💜",
-            "Keep watching, something wonderful is coming! 🎯"
-        ];
+    <div class="principle-card">
+        <h2>Closure in Interactive Icons</h2>
+        <p>The mind completes the hamburger menu icon pattern even when animated.</p>
+        <div class="demo-container">
+            <div class="icon-set">
+                <div class="icon menu-icon">
+                    <div class="icon-line line1"></div>
+                    <div class="icon-line line2"></div>
+                    <div class="icon-line line3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        const modalMessages = [
-            `Only ${Math.floor((countDownDate - new Date().getTime()) / (1000 * 60 * 60 * 24))} days to go! Time is flying faster than a sugar-rushed unicorn! 🦄`,
-            "Breaking news: This countdown is almost as exciting as you are! 📢",
-            "Tick tock, the clock says you're awesome o'clock! ⏰",
-            "Warning: Excessive countdown excitement detected! 🚨",
-            "Time check: Still counting, still amazing! ⌛",
-            "Countdown status: As purple and perfect as ever! 💜",
-            "Time flies when you're being fabulous! ✨"
-        ];
+    <div class="principle-card">
+        <h2>Figure/Ground in Card Stack</h2>
+        <p>Interactive cards create depth through layering and motion.</p>
+        <div class="demo-container">
+            <div class="card-stack">
+                <div class="stack-card card-1">1</div>
+                <div class="stack-card card-2">2</div>
+                <div class="stack-card card-3">3</div>
+            </div>
+        </div>
+    </div>
 
-        const spoilerMessages = [
-            "Each second brings us closer to the most purple-tastic day ever! 💜",
-            "The countdown says: Keep being amazing! ⏳",
-            "Fun fact: This countdown loves purple almost as much as you do! 🎨",
-            "Psst... the countdown thinks you're doing great! 🌟",
-            "Secret time: Every second counts, just like you! ⏰",
-            "Confidential: This is the most stylish countdown ever! 👑",
-            "The countdown whispers: You're worth the wait! 💫"
-        ];
-
-        function getDailyIndex() {
-            const today = new Date();
-            return (today.getDate() + today.getMonth()) % dailyMessages.length;
-        }
-
-        function updateMessages() {
-            const index = getDailyIndex();
-            document.getElementById('dailyMessage').textContent = dailyMessages[index];
-            document.getElementById('modalMessage').textContent = modalMessages[index];
-            document.getElementById('spoilerMessage').textContent = spoilerMessages[index];
-        }
-
-        const updateCountdown = () => {
-            const now = new Date().getTime();
-            const distance = countDownDate - now;
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById("days").textContent = days.toString().padStart(2, '0');
-            document.getElementById("hours").textContent = hours.toString().padStart(2, '0');
-            document.getElementById("minutes").textContent = minutes.toString().padStart(2, '0');
-            document.getElementById("seconds").textContent = seconds.toString().padStart(2, '0');
-        };
-
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-        updateMessages();
-    </script>
 </body>
 </html>
