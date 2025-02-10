@@ -1,106 +1,194 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-<div class="container mx-auto mt-6 p-6 bg-white shadow-lg rounded-lg">
-    <h2 class="text-2xl font-bold mb-4">Add New Project</h2>
-    <form method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
-        <div>
-            <label for="category" class="block font-medium">Project Category*</label>
-            <select class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="category" name="category" required onchange="updateTechnologies()">
+<div class="container mx-auto mt-4 p-6 bg-white shadow-lg rounded-lg max-w-4xl">
+    <h2 class="text-3xl font-bold mb-6 text-gray-800">Add New Project</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <!-- Project Category -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Project Category*</label>
+            <select id="category" name="category" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Select a category</option>
                 {% for category in Project.get_categories() %}
                 <option value="{{ category }}">{{ category }}</option>
                 {% endfor %}
             </select>
-            <p class="text-red-500 hidden">Please select a category.</p>
         </div>
 
-        <div>
-            <label for="project_name" class="block font-medium">Project Name*</label>
-            <input type="text" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="project_name" name="project_name" required>
-            <p class="text-red-500 hidden">Please provide a project name.</p>
+        <!-- Basic Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="project_name" class="block text-sm font-semibold text-gray-700 mb-2">Project Name*</label>
+                <input type="text" id="project_name" name="project_name" required
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="github_link" class="block text-sm font-semibold text-gray-700 mb-2">GitHub Link</label>
+                <input type="url" id="github_link" name="github_link"
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
         </div>
 
+        <!-- Description -->
         <div>
-            <label for="description" class="block font-medium">Description*</label>
-            <textarea class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="description" name="description" rows="4" required></textarea>
-            <p class="text-red-500 hidden">Please provide a description.</p>
+            <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description*</label>
+            <textarea id="description" name="description" rows="4" required
+                      class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
         </div>
 
-        <div>
-            <label for="technologies" class="block font-medium">Technologies Used*</label>
-            <select class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="technologies" name="technologies" multiple required>
-                <!-- Options will be populated by JavaScript -->
-            </select>
-            <p class="text-red-500 hidden">Please select at least one technology.</p>
-            <small class="text-gray-500">Hold Ctrl/Cmd to select multiple technologies</small>
+        <!-- Technologies -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Technologies Used*</label>
+            <div id="selected-techs-display" class="mb-4 space-x-2"></div>
+            <div id="tech-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <!-- Technologies will be populated here -->
+            </div>
+            <input type="hidden" id="selected-technologies" name="technologies">
         </div>
 
-        <div>
-            <label for="github_link" class="block font-medium">GitHub Link</label>
-            <input type="url" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="github_link" name="github_link">
+        <!-- Dates -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="date_started" class="block text-sm font-semibold text-gray-700 mb-2">Date Started*</label>
+                <input type="date" id="date_started" name="date_started" required
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="date_completed" class="block text-sm font-semibold text-gray-700 mb-2">Date Completed</label>
+                <input type="date" id="date_completed" name="date_completed"
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
         </div>
 
+        <!-- Preview Link -->
         <div>
-            <label for="preview_link" class="block font-medium">Preview Link</label>
-            <input type="url" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="preview_link" name="preview_link">
+            <label for="preview_link" class="block text-sm font-semibold text-gray-700 mb-2">Preview Link</label>
+            <input type="url" id="preview_link" name="preview_link"
+                   class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
 
-        <div>
-            <label for="date_started" class="block font-medium">Date Started*</label>
-            <input type="date" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="date_started" name="date_started" required>
-            <p class="text-red-500 hidden">Please provide a start date.</p>
-        </div>
-
-        <div>
-            <label for="date_completed" class="block font-medium">Date Completed</label>
-            <input type="date" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" id="date_completed" name="date_completed">
-        </div>
-
-        <div>
-            <label class="block font-medium">Project Screenshots</label>
-            <div id="screenshot-container">
-                <div class="screenshot-entry mb-2 flex space-x-2">
-                    <input type="file" class="w-1/2 p-2 border rounded" name="screenshots" accept="image/*">
-                    <input type="text" class="w-1/2 p-2 border rounded" name="captions" placeholder="Caption (optional)">
+        <!-- Screenshots -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">Add Screenshots</h3>
+            <div id="screenshot-container" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="file" name="screenshots" accept="image/*"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <input type="text" name="captions" placeholder="Caption (optional)"
+                           class="w-full p-2.5 border border-gray-300 rounded-lg">
                 </div>
             </div>
-            <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded mt-2" onclick="addScreenshotField()">Add Another Screenshot</button>
+            <button type="button" onclick="addScreenshotField()"
+                    class="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                Add Another Screenshot
+            </button>
         </div>
 
-        <div class="flex space-x-4">
-            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded">Add Project</button>
-            <a href="{{ url_for('admin_dashboard') }}" class="bg-gray-500 text-white px-6 py-2 rounded">Cancel</a>
+        <!-- Form Actions -->
+        <div class="flex gap-4">
+            <button type="submit"
+                    class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                Add Project
+            </button>
+            <a href="{{ url_for('admin_dashboard') }}"
+               class="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                Cancel
+            </a>
         </div>
     </form>
 </div>
 
 <script>
-const technologies = {{ Project.get_technologies()|tojson|safe }};
-const categorizedTech = {{ TECHNOLOGIES|tojson|safe }};
+const technologies = {
+    {% for category, techs in TECHNOLOGIES.items() %}
+        "{{ category }}": {{ techs|tojson }},
+    {% endfor %}
+};
+
+const selectedTechs = new Set();
+const allUsedTechs = new Set();
+
+function createTechTag(tech) {
+    const tag = document.createElement('div');
+    tag.className = 'inline-flex items-center bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-sm';
+    tag.innerHTML = `
+        ${tech}
+        <button type="button" class="ml-2 text-blue-700 hover:text-blue-900" onclick="removeTechnology('${tech}')">
+            ×
+        </button>
+    `;
+    return tag;
+}
+
+function removeTechnology(tech) {
+    selectedTechs.delete(tech);
+    allUsedTechs.delete(tech);
+    updateTechDisplay();
+    updateTechnologies();
+}
+
+function updateTechDisplay() {
+    const display = document.getElementById('selected-techs-display');
+    const hiddenInput = document.getElementById('selected-technologies');
+
+    display.innerHTML = '';
+    selectedTechs.forEach(tech => {
+        display.appendChild(createTechTag(tech));
+    });
+
+    hiddenInput.value = Array.from(selectedTechs).join(',');
+}
 
 function updateTechnologies() {
     const category = document.getElementById('category').value;
-    const techSelect = document.getElementById('technologies');
-    techSelect.innerHTML = '';
+    const container = document.getElementById('tech-container');
 
-    const relevantTech = category ? categorizedTech[category] : technologies;
+    container.innerHTML = '';
 
-    relevantTech.forEach(tech => {
-        const option = new Option(tech, tech);
-        techSelect.add(option);
-    });
+    if (category && technologies[category]) {
+        technologies[category].forEach(tech => {
+            if (selectedTechs.has(tech)) return;
+
+            const div = document.createElement('div');
+            div.className = 'flex items-center';
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'text-left w-full px-3 py-2 text-sm rounded-lg hover:bg-blue-50 transition-colors ' +
+                             'text-gray-700 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500';
+            button.textContent = tech;
+            button.onclick = function() {
+                if (!selectedTechs.has(tech)) {
+                    selectedTechs.add(tech);
+                    updateTechDisplay();
+                    updateTechnologies();
+                }
+            };
+
+            div.appendChild(button);
+            container.appendChild(div);
+        });
+    }
 }
 
 function addScreenshotField() {
     const container = document.getElementById('screenshot-container');
-    const newEntry = document.createElement('div');
-    newEntry.className = 'screenshot-entry mb-2 flex space-x-2';
-    newEntry.innerHTML = `
-        <input type="file" class="w-1/2 p-2 border rounded" name="screenshots" accept="image/*">
-        <input type="text" class="w-1/2 p-2 border rounded" name="captions" placeholder="Caption (optional)">
+    const div = document.createElement('div');
+    div.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+    div.innerHTML = `
+        <input type="file" name="screenshots" accept="image/*"
+               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        <input type="text" name="captions" placeholder="Caption (optional)"
+               class="w-full p-2.5 border border-gray-300 rounded-lg">
     `;
-    container.appendChild(newEntry);
+    container.appendChild(div);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateTechDisplay();
+    updateTechnologies();
+});
+
+document.getElementById('category').addEventListener('change', updateTechnologies);
 </script>
 {% endblock %}
