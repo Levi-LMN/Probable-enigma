@@ -1,12 +1,13 @@
 {% extends "admin/base.html" %}
 
 {% block content %}
-<div class="container mx-auto mt-4 p-6 bg-white shadow-md rounded-lg">
-    <h2 class="text-2xl font-bold mb-4">Edit Project</h2>
-    <form method="POST" enctype="multipart/form-data" class="space-y-4">
-        <div>
-            <label for="category" class="block text-sm font-medium">Project Category*</label>
-            <select id="category" name="category" required onchange="updateTechnologies()" class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
+<div class="container mx-auto mt-4 p-6 bg-white shadow-lg rounded-lg max-w-4xl">
+    <h2 class="text-3xl font-bold mb-6 text-gray-800">Edit Project</h2>
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <!-- Project Category -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Project Category*</label>
+            <select id="category" name="category" required class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="">Select a category</option>
                 {% for category in Project.get_categories() %}
                 <option value="{{ category }}" {% if project.Category == category %}selected{% endif %}>{{ category }}</option>
@@ -14,57 +15,76 @@
             </select>
         </div>
 
-        <div>
-            <label for="project_name" class="block text-sm font-medium">Project Name*</label>
-            <input type="text" id="project_name" name="project_name" value="{{ project.ProjectName }}" required class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
+        <!-- Basic Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="project_name" class="block text-sm font-semibold text-gray-700 mb-2">Project Name*</label>
+                <input type="text" id="project_name" name="project_name" value="{{ project.ProjectName }}" required
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="github_link" class="block text-sm font-semibold text-gray-700 mb-2">GitHub Link</label>
+                <input type="url" id="github_link" name="github_link" value="{{ project.GitHubLink }}"
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
         </div>
 
+        <!-- Description -->
         <div>
-            <label for="description" class="block text-sm font-medium">Description*</label>
-            <textarea id="description" name="description" rows="4" required class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">{{ project.Description }}</textarea>
+            <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Description*</label>
+            <textarea id="description" name="description" rows="4" required
+                      class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ project.Description }}</textarea>
         </div>
 
-        <div>
-            <label for="technologies" class="block text-sm font-medium">Technologies Used*</label>
-            <select id="technologies" name="technologies" multiple required class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
-                <!-- Options populated by JavaScript -->
-            </select>
-            <small class="text-gray-500">Hold Ctrl/Cmd to select multiple technologies</small>
+        <!-- Technologies -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <label class="block text-sm font-semibold text-gray-700 mb-4">Technologies Used*</label>
+            <div id="tech-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <!-- Technologies will be populated here -->
+            </div>
+            <input type="hidden" id="selected-technologies" name="technologies">
         </div>
 
-        <div>
-            <label for="github_link" class="block text-sm font-medium">GitHub Link</label>
-            <input type="url" id="github_link" name="github_link" value="{{ project.GitHubLink }}" class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
+        <!-- Dates -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="date_started" class="block text-sm font-semibold text-gray-700 mb-2">Date Started*</label>
+                <input type="date" id="date_started" name="date_started"
+                       value="{{ project.DateStarted|default('', true)|string }}" required
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="date_completed" class="block text-sm font-semibold text-gray-700 mb-2">Date Completed</label>
+                <input type="date" id="date_completed" name="date_completed"
+                       value="{{ project.DateCompleted|default('', true)|string }}"
+                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
         </div>
 
+        <!-- Preview Link -->
         <div>
-            <label for="preview_link" class="block text-sm font-medium">Preview Link</label>
-            <input type="url" id="preview_link" name="preview_link" value="{{ project.PreviewLink }}" class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
+            <label for="preview_link" class="block text-sm font-semibold text-gray-700 mb-2">Preview Link</label>
+            <input type="url" id="preview_link" name="preview_link" value="{{ project.PreviewLink }}"
+                   class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
 
-        <div>
-            <label for="date_started" class="block text-sm font-medium">Date Started*</label>
-            <input type="date" id="date_started" name="date_started" value="{{ project.DateStarted|default('', true)|string }}" required class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
-        </div>
-
-        <div>
-            <label for="date_completed" class="block text-sm font-medium">Date Completed</label>
-            <input type="date" id="date_completed" name="date_completed" value="{{ project.DateCompleted|default('', true)|string }}" class="block w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
-        </div>
-
+        <!-- Screenshots Section -->
         {% if project.screenshots %}
-        <div>
-            <label class="block text-sm font-medium">Current Screenshots</label>
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">Current Screenshots</h3>
             <div id="existing-screenshots" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {% for screenshot in project.screenshots %}
-                <div class="border rounded-lg overflow-hidden shadow-md">
-                    <img src="{{ url_for('static', filename=screenshot.filename) }}" class="w-full" alt="Project Screenshot">
+                <div class="border rounded-lg overflow-hidden bg-white shadow">
+                    <img src="{{ url_for('static', filename=screenshot.filename) }}"
+                         class="w-full h-48 object-cover" alt="Project Screenshot">
                     <div class="p-4">
-                        <input type="text" name="existing_captions" value="{{ screenshot.caption }}" placeholder="Caption" class="block w-full p-2 border border-gray-300 rounded-md">
-                        <div class="mt-2">
-                            <input type="checkbox" name="keep_screenshot" value="{{ screenshot.id }}" id="keep_{{ screenshot.id }}" checked class="mr-2">
-                            <label for="keep_{{ screenshot.id }}">Keep this screenshot</label>
-                        </div>
+                        <input type="text" name="existing_captions" value="{{ screenshot.caption }}"
+                               placeholder="Caption" class="w-full p-2 mb-2 border border-gray-300 rounded-lg">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="keep_screenshot" value="{{ screenshot.id }}"
+                                   id="keep_{{ screenshot.id }}" checked class="rounded text-blue-600">
+                            <span class="ml-2">Keep this screenshot</span>
+                        </label>
                     </div>
                 </div>
                 {% endfor %}
@@ -72,34 +92,99 @@
         </div>
         {% endif %}
 
-        <div>
-            <label class="block text-sm font-medium">Add New Screenshots</label>
-            <div id="screenshot-container">
-                <div class="flex space-x-2 mb-2">
-                    <input type="file" name="new_screenshots" accept="image/*" class="block w-full p-2 border border-gray-300 rounded-md">
-                    <input type="text" name="new_captions" placeholder="Caption (optional)" class="block w-full p-2 border border-gray-300 rounded-md">
+        <!-- New Screenshots -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">Add New Screenshots</h3>
+            <div id="screenshot-container" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="file" name="new_screenshots" accept="image/*"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    <input type="text" name="new_captions" placeholder="Caption (optional)"
+                           class="w-full p-2.5 border border-gray-300 rounded-lg">
                 </div>
             </div>
-            <button type="button" onclick="addScreenshotField()" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded-md">Add Another Screenshot</button>
+            <button type="button" onclick="addScreenshotField()"
+                    class="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                Add Another Screenshot
+            </button>
         </div>
 
-        <div class="flex space-x-2">
-            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md">Update Project</button>
-            <a href="{{ url_for('admin_dashboard') }}" class="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</a>
+        <!-- Form Actions -->
+        <div class="flex gap-4">
+            <button type="submit"
+                    class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                Update Project
+            </button>
+            <a href="{{ url_for('admin_dashboard') }}"
+               class="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                Cancel
+            </a>
         </div>
     </form>
 </div>
 
 <script>
+const technologies = {
+    {% for category, techs in TECHNOLOGIES.items() %}
+        "{{ category }}": {{ techs|tojson }},
+    {% endfor %}
+};
+
+const selectedTechs = new Set({{ project.technologies_list|tojson }});
+
+function updateTechnologies() {
+    const category = document.getElementById('category').value;
+    const container = document.getElementById('tech-container');
+    const hiddenInput = document.getElementById('selected-technologies');
+
+    container.innerHTML = '';
+
+    if (category && technologies[category]) {
+        technologies[category].forEach(tech => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = tech;
+            checkbox.checked = selectedTechs.has(tech);
+            checkbox.className = 'w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500';
+            checkbox.onchange = function() {
+                if (this.checked) {
+                    selectedTechs.add(this.value);
+                } else {
+                    selectedTechs.delete(this.value);
+                }
+                hiddenInput.value = Array.from(selectedTechs).join(',');
+            };
+
+            const label = document.createElement('label');
+            label.className = 'ml-2 text-sm text-gray-700';
+            label.textContent = tech;
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            container.appendChild(div);
+        });
+    }
+
+    hiddenInput.value = Array.from(selectedTechs).join(',');
+}
+
 function addScreenshotField() {
     const container = document.getElementById('screenshot-container');
-    const newEntry = document.createElement('div');
-    newEntry.className = 'flex space-x-2 mb-2';
-    newEntry.innerHTML = `
-        <input type="file" name="new_screenshots" accept="image/*" class="block w-full p-2 border border-gray-300 rounded-md">
-        <input type="text" name="new_captions" placeholder="Caption (optional)" class="block w-full p-2 border border-gray-300 rounded-md">
+    const div = document.createElement('div');
+    div.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+    div.innerHTML = `
+        <input type="file" name="new_screenshots" accept="image/*"
+               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        <input type="text" name="new_captions" placeholder="Caption (optional)"
+               class="w-full p-2.5 border border-gray-300 rounded-lg">
     `;
-    container.appendChild(newEntry);
+    container.appendChild(div);
 }
+
+document.addEventListener('DOMContentLoaded', updateTechnologies);
+document.getElementById('category').addEventListener('change', updateTechnologies);
 </script>
 {% endblock %}
