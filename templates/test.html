@@ -1,311 +1,181 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Advanced Gestalt Principles in UI Design</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --secondary: #dc2626;
-            --neutral: #1e293b;
-            --bg: #f8fafc;
-        }
+{% extends "base.html" %}
 
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: var(--bg);
-        }
-
-        .principle-card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            margin: 30px 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .principle-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .demo-container {
-            background: white;
-            padding: 40px;
-            margin: 20px 0;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            min-height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Proximity Example - Navigation Menu */
-        .nav-menu {
-            display: flex;
-            gap: 40px;
-            justify-content: center;
-        }
-
-        .nav-group {
-            display: flex;
-            gap: 12px;
-        }
-
-        .nav-item {
-            padding: 8px 16px;
-            background: var(--primary);
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .nav-item:hover {
-            transform: scale(1.1);
-        }
-
-        /* Similarity Example - Dashboard Cards */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .stat-card {
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .revenue {
-            background: #e0f2fe;
-            color: #0369a1;
-        }
-
-        .users {
-            background: #f0fdf4;
-            color: #166534;
-        }
-
-        .orders {
-            background: #fef2f2;
-            color: #991b1b;
-        }
-
-        .stat-card:hover {
-            transform: scale(1.05);
-        }
-
-        /* Continuation Example - Progress Steps */
-        .progress-steps {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .progress-line {
-            position: absolute;
-            height: 3px;
-            background: var(--primary);
-            top: 50%;
-            left: 0;
-            right: 0;
-            z-index: 1;
-        }
-
-        .step {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: white;
-            border: 3px solid var(--primary);
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
-
-        .step:hover {
-            transform: scale(1.2);
-        }
-
-        /* Closure Example - Icon Set */
-        .icon-set {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-        }
-
-        .icon {
-            width: 60px;
-            height: 60px;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .icon-line {
-            position: absolute;
-            background: var(--neutral);
-            transition: transform 0.3s;
-        }
-
-        .menu-icon .icon-line {
-            width: 100%;
-            height: 3px;
-            left: 0;
-        }
-
-        .menu-icon .line1 { top: 15px; }
-        .menu-icon .line2 { top: 28px; }
-        .menu-icon .line3 { top: 41px; }
-
-        .menu-icon:hover .line1 { transform: rotate(45deg) translate(8px, 8px); }
-        .menu-icon:hover .line2 { opacity: 0; }
-        .menu-icon:hover .line3 { transform: rotate(-45deg) translate(8px, -8px); }
-
-        /* Figure/Ground Example - Cards */
-        .card-stack {
-            position: relative;
-            width: 300px;
-            height: 200px;
-            margin: 0 auto;
-        }
-
-        .stack-card {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--neutral);
-        }
-
-        .card-1 { transform: rotate(-5deg); background: #bfdbfe; }
-        .card-2 { transform: rotate(0deg); background: #93c5fd; }
-        .card-3 { transform: rotate(5deg); background: #60a5fa; }
-
-        .card-stack:hover .card-1 { transform: rotate(-15deg) translateX(-20px); }
-        .card-stack:hover .card-3 { transform: rotate(15deg) translateX(20px); }
-
-        h1 {
-            color: var(--neutral);
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 40px;
-        }
-
-        h2 {
-            color: var(--neutral);
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-
-        p {
-            color: #475569;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-    </style>
-</head>
-<body>
-    <h1>Advanced Gestalt Principles in UI Design</h1>
-
-    <div class="principle-card">
-        <h2>Proximity in Navigation</h2>
-        <p>Related navigation items are grouped together, creating clear sections in the menu.</p>
-        <div class="demo-container">
-            <nav class="nav-menu">
-                <div class="nav-group">
-                    <div class="nav-item">Home</div>
-                    <div class="nav-item">About</div>
-                    <div class="nav-item">Contact</div>
-                </div>
-                <div class="nav-group">
-                    <div class="nav-item">Login</div>
-                    <div class="nav-item">Register</div>
-                </div>
-            </nav>
-        </div>
+{% block content %}
+<div class="relative min-h-screen flex flex-col items-center justify-center bg-black text-white p-6 overflow-hidden">
+    <!-- Dynamic Background with Animated Waves -->
+    <div class="absolute inset-0 w-full h-full">
+        <svg class="absolute top-0 left-0 w-full h-full opacity-10" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#1E40AF" fill-opacity="0.7" d="M0,64L40,96C80,128,160,192,240,192C320,192,400,128,480,106.7C560,85,640,107,720,106.7C800,107,880,85,960,96C1040,107,1120,149,1200,144C1280,139,1360,85,1400,64L1440,32L1440,320L1400,320C1360,320,1280,320,1200,320C1120,320,1040,320,960,320C880,320,800,320,720,320C640,320,560,320,480,320C400,320,320,320,240,320C160,320,80,320,40,320L0,320Z"></path>
+        </svg>
     </div>
 
-    <div class="principle-card">
-        <h2>Similarity in Dashboard Stats</h2>
-        <p>Statistical cards share similar layouts but use different colors to indicate different data types.</p>
-        <div class="demo-container">
-            <div class="dashboard">
-                <div class="stat-card revenue">
-                    <h3>Revenue</h3>
-                    <p>$50,000</p>
-                </div>
-                <div class="stat-card users">
-                    <h3>Users</h3>
-                    <p>1,234</p>
-                </div>
-                <div class="stat-card orders">
-                    <h3>Orders</h3>
-                    <p>89</p>
-                </div>
-            </div>
-        </div>
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuHighlight" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300 opacity-0">
     </div>
 
-    <div class="principle-card">
-        <h2>Continuation in Progress Steps</h2>
-        <p>The eye naturally follows the connected steps in this progress indicator.</p>
-        <div class="demo-container">
-            <div class="progress-steps">
-                <div class="progress-line"></div>
-                <div class="step">1</div>
-                <div class="step">2</div>
-                <div class="step">3</div>
-                <div class="step">4</div>
-            </div>
-        </div>
-    </div>
+    <!-- Rest of your content remains the same -->
+    <h1 class="text-7xl font-extrabold relative z-10 glitch-text">
+        Hey, I'm <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Levi</span>
+    </h1>
 
-    <div class="principle-card">
-        <h2>Closure in Interactive Icons</h2>
-        <p>The mind completes the hamburger menu icon pattern even when animated.</p>
-        <div class="demo-container">
-            <div class="icon-set">
-                <div class="icon menu-icon">
-                    <div class="icon-line line1"></div>
-                    <div class="icon-line line2"></div>
-                    <div class="icon-line line3"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <p class="text-3xl mt-4 font-semibold relative z-10">
+        <span class="typewriter text-blue-300"></span>
+    </p>
 
-    <div class="principle-card">
-        <h2>Figure/Ground in Card Stack</h2>
-        <p>Interactive cards create depth through layering and motion.</p>
-        <div class="demo-container">
-            <div class="card-stack">
-                <div class="stack-card card-1">1</div>
-                <div class="stack-card card-2">2</div>
-                <div class="stack-card card-3">3</div>
-            </div>
-        </div>
-    </div>
+    <p class="mt-6 max-w-3xl text-center text-gray-400 text-lg leading-relaxed relative z-10 opacity-0 animate-fade-in">
+        I design and develop websites, build mobile apps, and automate repetitive or manual tasks to streamline your workflow. Let's create something extraordinary!
+    </p>
 
-</body>
-</html>
+    <div class="mt-8 flex flex-wrap gap-4 justify-center sm:justify-start relative z-10">
+        <a href="{{ url_for('projects') }}" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gradient-to-r from-blue-500 to-purple-500 transform hover:scale-110 transition-all duration-300 hover:shadow-blue-500/50">
+            See My Work
+        </a>
+        <a href="{{ url_for('work') }}" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gradient-to-r from-green-500 to-teal-500 transform hover:scale-110 transition-all duration-300 hover:shadow-green-500/50">
+            Experiences
+        </a>
+        <a href="#contact" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gray-800 transform hover:scale-110 transition-all duration-300 hover:shadow-gray-500/50">
+            Contact Me
+        </a>
+    </div>
+</div>
+
+<!-- Updated Styles -->
+<style>
+    .glitch-text {
+        position: relative;
+        animation: glitch 1s infinite;
+    }
+    @keyframes glitch {
+        0% { text-shadow: 2px 2px 5px rgba(0, 255, 255, 0.3); }
+        50% { text-shadow: -2px -2px 5px rgba(255, 0, 255, 0.3); }
+        100% { text-shadow: 2px 2px 5px rgba(0, 255, 255, 0.3); }
+    }
+    .animate-fade-in {
+        animation: fadeIn 1.5s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    .hamburger-highlight {
+        animation: highlight-pulse 1s infinite;
+    }
+    @keyframes highlight-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(147, 197, 253, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(147, 197, 253, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(147, 197, 253, 0); }
+    }
+    .slide-down {
+        animation: slideDown 0.3s ease-out forwards;
+    }
+    @keyframes slideDown {
+        from { transform: translateY(-100%); }
+        to { transform: translateY(0); }
+    }
+</style>
+
+<!-- Updated Script -->
+<script>
+    const statements = [
+        "I am a Full Stack Software Developer.",
+        "I craft innovative digital experiences.",
+        "Blending technology with creativity.",
+        "Let's build something amazing together.",
+        "Explore my work below.",
+        "Or use the Navbar to see my experiences"
+    ];
+
+    let index = 0, charIndex = 0;
+    const typewriterElement = document.querySelector(".typewriter");
+    const mobileMenuButton = document.querySelector(".md\\:hidden"); // Select hamburger button
+    const mobileMenu = document.getElementById("mobile-menu");
+    const mobileMenuHighlight = document.getElementById("mobileMenuHighlight");
+
+    function highlightMobileMenu() {
+        // Add highlight effect to hamburger button
+        mobileMenuButton.classList.add("hamburger-highlight");
+
+        // Show overlay with blur
+        mobileMenuHighlight.classList.remove("hidden");
+        setTimeout(() => {
+            mobileMenuHighlight.classList.remove("opacity-0");
+        }, 100);
+
+        // Simulate click on hamburger menu
+        setTimeout(() => {
+            mobileMenuButton.click();
+            mobileMenu.classList.add("slide-down");
+
+            // Add pulse effect to Experience link
+            const experienceLink = mobileMenu.querySelector('a[href*="work"]');
+            experienceLink.classList.add("pulse-animation");
+        }, 1000);
+
+        // Hide everything after delay
+        setTimeout(() => {
+            mobileMenuButton.classList.remove("hamburger-highlight");
+            mobileMenu.classList.remove("slide-down");
+            mobileMenuHighlight.classList.add("opacity-0");
+            mobileMenuButton.click(); // Close menu
+
+            setTimeout(() => {
+                mobileMenuHighlight.classList.add("hidden");
+                const experienceLink = mobileMenu.querySelector('a[href*="work"]');
+                experienceLink.classList.remove("pulse-animation");
+            }, 300);
+        }, 4000);
+    }
+
+    function typeEffect() {
+        if (charIndex < statements[index].length) {
+            typewriterElement.textContent += statements[index].charAt(charIndex);
+            charIndex++;
+            setTimeout(typeEffect, 50);
+        } else {
+            if (index === statements.length - 1) {
+                setTimeout(highlightMobileMenu, 500);
+                setTimeout(startCountdown, 5000);
+            } else {
+                setTimeout(eraseEffect, 2000);
+            }
+        }
+    }
+
+    function eraseEffect() {
+        if (charIndex > 0) {
+            typewriterElement.textContent = statements[index].substring(0, charIndex - 1);
+            charIndex--;
+            setTimeout(eraseEffect, 20);
+        } else {
+            index = (index + 1) % statements.length;
+            setTimeout(typeEffect, 500);
+        }
+    }
+
+    function startCountdown() {
+        let countdown = 5;
+        let countdownText = `Redirecting in ${countdown}...`;
+        typewriterElement.textContent = countdownText;
+
+        const interval = setInterval(() => {
+            countdown--;
+            countdownText = `Redirecting in ${countdown}...`;
+            typewriterElement.textContent = countdownText;
+            if (countdown <= 0) {
+                clearInterval(interval);
+                window.location.href = "/projects";
+            }
+        }, 1000);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => setTimeout(typeEffect, 500));
+</script>
+{% endblock %}
