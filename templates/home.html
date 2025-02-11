@@ -25,10 +25,18 @@
     </p>
 
     <!-- Action Buttons with Neon Glow -->
-    <div class="mt-8 flex space-x-6 relative z-10">
-        <a href="{{ url_for('projects') }}" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gradient-to-r from-blue-500 to-purple-500 transform hover:scale-110 transition-all duration-300 hover:shadow-blue-500/50">See My Work</a>
-        <a href="#contact" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gray-800 transform hover:scale-110 transition-all duration-300 hover:shadow-gray-500/50">Contact Me</a>
+    <div class="mt-8 flex flex-wrap gap-4 justify-center sm:justify-start relative z-10">
+        <a href="{{ url_for('projects') }}" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gradient-to-r from-blue-500 to-purple-500 transform hover:scale-110 transition-all duration-300 hover:shadow-blue-500/50">
+            See My Work
+        </a>
+        <a href="{{ url_for('work') }}" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gradient-to-r from-green-500 to-teal-500 transform hover:scale-110 transition-all duration-300 hover:shadow-green-500/50">
+            Experiences
+        </a>
+        <a href="#contact" class="px-8 py-3 rounded-lg font-semibold text-white shadow-lg bg-gray-800 transform hover:scale-110 transition-all duration-300 hover:shadow-gray-500/50">
+            Contact Me
+        </a>
     </div>
+
 </div>
 
 <!-- Typewriter Effect -->
