@@ -114,14 +114,7 @@
             {% endif %}
         {% endwith %}
 
-        <div class="bg-white shadow rounded-lg overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-primary-600 to-primary-700">
-                <h3 class="text-lg leading-6 font-medium text-white">{% block content_title %}Dashboard{% endblock %}</h3>
-            </div>
-            <div class="p-6">
-                {% block content %}{% endblock %}
-            </div>
-        </div>
+        {% block content %}{% endblock %}
     </main>
 
     <footer class="bg-white shadow-inner mt-auto py-4">
