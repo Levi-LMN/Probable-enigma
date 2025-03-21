@@ -1,0 +1,10 @@
+{
+  "total_visits": 2,
+  "daily_visits": {
+    "2025-03-22": 2
+  },
+  "page_visits": {
+    "/": 1,
+    "/projects": 1
+  }
+}

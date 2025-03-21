@@ -533,6 +533,105 @@ from datetime import datetime
 def inject_now():
     return {'now': datetime.utcnow}
 
+
+@app.context_processor
+def inject_stats():
+    """Make stats available to all templates."""
+
+    # Query the database for counts
+    projects_count = Project.query.count()
+    experiences_count = WorkExperience.query.count()
+
+    # Return a dictionary that will be available in all templates
+    return {
+        'projects_count': projects_count,
+        'experiences_count': experiences_count
+    }
+
+
+import os
+import json
+from datetime import datetime
+
+# Path for stats file
+STATS_DIR = 'visitor_stats'
+STATS_FILE = os.path.join(STATS_DIR, 'visitor_stats.json')
+
+# Create directory if it doesn't exist
+os.makedirs(STATS_DIR, exist_ok=True)
+
+
+# Initialize or load stats
+def load_stats():
+    if os.path.exists(STATS_FILE):
+        try:
+            with open(STATS_FILE, 'r') as f:
+                return json.load(f)
+        except:
+            return {'total_visits': 0, 'daily_visits': {}, 'page_visits': {}}
+    else:
+        return {'total_visits': 0, 'daily_visits': {}, 'page_visits': {}}
+
+
+def save_stats(stats):
+    with open(STATS_FILE, 'w') as f:
+        json.dump(stats, f, indent=2)
+
+
+@app.before_request
+def track_visit():
+    # Skip static files, admin routes, and non-GET requests
+    if (not request.path.startswith('/static') and
+            not request.path.startswith('/admin') and
+            request.method == 'GET'):
+
+        # Load current stats
+        stats = load_stats()
+
+        # Increment total visits
+        stats['total_visits'] += 1
+
+        # Track daily visits
+        today = datetime.now().strftime('%Y-%m-%d')
+        if today not in stats['daily_visits']:
+            stats['daily_visits'][today] = 0
+        stats['daily_visits'][today] += 1
+
+        # Track page visits
+        if request.path not in stats['page_visits']:
+            stats['page_visits'][request.path] = 0
+        stats['page_visits'][request.path] += 1
+
+        # Save updated stats
+        save_stats(stats)
+
+
+@app.route('/admin/visit_stats')
+@admin_required
+def visit_stats():
+    stats = load_stats()
+
+    # Sort daily visits by date (most recent first)
+    sorted_daily_visits = sorted(
+        [(date, count) for date, count in stats['daily_visits'].items()],
+        key=lambda x: x[0],
+        reverse=True
+    )
+
+    # Sort page visits by count (highest first)
+    sorted_page_visits = sorted(
+        [(page, count) for page, count in stats['page_visits'].items()],
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    return render_template(
+        'admin/visit_stats.html',
+        total_visits=stats['total_visits'],
+        daily_visits=sorted_daily_visits[:30],  # Last 30 days
+        page_visits=sorted_page_visits[:10]  # Top 10 pages
+    )
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
