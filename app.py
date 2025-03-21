@@ -527,6 +527,12 @@ def project_detail(project_id):
     project = Project.query.get_or_404(project_id)
     return render_template('project_detail.html', project=project)
 
+from datetime import datetime
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.utcnow}
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

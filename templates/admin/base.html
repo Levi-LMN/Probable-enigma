@@ -5,40 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin Panel{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100">
-    <nav class="bg-gray-900 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <a class="text-lg font-semibold" href="{{ url_for('admin_dashboard') }}">Admin Panel</a>
-            <button class="md:hidden block text-white focus:outline-none" id="menu-toggle">
-                &#9776;
-            </button>
-            <ul class="hidden md:flex space-x-4" id="menu">
-                <li><a class="hover:text-gray-300" href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
-                <li><a class="hover:text-gray-300" href="{{ url_for('add_project') }}">Add Project</a></li>
-                <li><a class="hover:text-gray-300" href="{{ url_for('add_work_experience') }}">Add Work Experience</a></li>
-                <li><a class="text-red-400 hover:text-red-600" href="{{ url_for('admin_logout') }}">Logout</a></li>
-            </ul>
+<body class="bg-white font-sans min-h-screen flex flex-col text-gray-800">
+    <nav class="bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('admin_dashboard') }}" class="flex items-center text-primary-600 font-semibold text-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd" />
+                        </svg>
+                        Admin
+                    </a>
+                </div>
+
+                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-1">
+                    <a href="{{ url_for('admin_dashboard') }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200">Dashboard</a>
+                    <a href="{{ url_for('add_project') }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200">Add Project</a>
+                    <a href="{{ url_for('add_work_experience') }}" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors duration-200">Add Experience</a>
+                    <a href="{{ url_for('admin_logout') }}" class="ml-2 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-800 transition-colors duration-200">Logout</a>
+                </div>
+
+                <div class="flex items-center sm:hidden">
+                    <button type="button" id="menu-toggle" class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1 border-t border-gray-100">
+                <a href="{{ url_for('admin_dashboard') }}" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary-600">Dashboard</a>
+                <a href="{{ url_for('add_project') }}" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary-600">Add Project</a>
+                <a href="{{ url_for('add_work_experience') }}" class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary-600">Add Experience</a>
+                <a href="{{ url_for('admin_logout') }}" class="block pl-3 pr-4 py-2 text-base font-medium text-red-600 hover:bg-gray-50 hover:text-red-800">Logout</a>
+            </div>
         </div>
     </nav>
 
-    <div class="container mx-auto mt-4 p-4">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="bg-{{ category }}-100 border-l-4 border-{{ category }}-500 text-{{ category }}-700 p-4 mb-4" role="alert">
-                        {{ message }}
+                    {% set alert_color = 'green' if category == 'success' else 'red' %}
+                    <div class="mb-6 rounded-md bg-{{alert_color}}-50 p-4 border-l-4 border-{{alert_color}}-400">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                {% if category == 'success' %}
+                                <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                {% else %}
+                                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-{{alert_color}}-700">{{ message }}</p>
+                            </div>
+                        </div>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
         {% block content %}{% endblock %}
-    </div>
+    </main>
+
+    <footer class="border-t border-gray-100 mt-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-xs text-gray-400">&copy; {{ now().year }} Admin Panel</p>
+        </div>
+    </footer>
 
     <script>
         document.getElementById('menu-toggle').addEventListener('click', function() {
-            document.getElementById('menu').classList.toggle('hidden');
+            document.getElementById('mobile-menu').classList.toggle('hidden');
         });
     </script>
 </body>
