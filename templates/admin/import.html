@@ -1,0 +1,158 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Import Backup{% endblock %}
+{% block page_title %}Import Backup{% endblock %}
+{% block page_subtitle %}Restore data from a portfolio backup ZIP{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  <!-- Info card -->
+  <div class="card p-6 mb-6" style="border-color:rgba(59,130,246,0.25);background:rgba(59,130,246,0.04)">
+    <div class="flex gap-3">
+      <i class="fas fa-info-circle text-blue-400 mt-0.5 shrink-0"></i>
+      <div>
+        <p class="text-sm font-semibold text-blue-300 mb-1">What gets imported</p>
+        <ul class="text-sm space-y-1" style="color:rgba(255,255,255,0.55)">
+          <li>• All <strong class="text-white/70">projects</strong> — name, description, links, dates, technologies and images</li>
+          <li>• All <strong class="text-white/70">work experience</strong> — company, role, dates, technologies and logos</li>
+          <li>• Images are copied into the new upload folders automatically</li>
+          <li>• Supports both <strong class="text-white/70">old system</strong> backups and <strong class="text-white/70">new system</strong> backups — detected automatically</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload form -->
+  <div class="card p-6 sm:p-8">
+    <h2 class="text-base font-bold mb-6" style="letter-spacing:-0.01em">Upload Backup ZIP</h2>
+
+    <form action="{{ url_for('admin.import_backup') }}" method="POST" enctype="multipart/form-data" id="import-form">
+
+      <!-- Drop zone -->
+      <div id="drop-zone"
+           class="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all mb-6"
+           style="border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.02)"
+           onclick="document.getElementById('backup_file').click()">
+        <i class="fas fa-file-archive text-3xl mb-3 block" style="color:rgba(34,197,94,0.4)"></i>
+        <p class="text-sm font-semibold text-white/70 mb-1">Click to choose a file</p>
+        <p class="text-xs" style="color:rgba(255,255,255,0.3)">or drag and drop your <code class="text-green-400">.zip</code> backup here</p>
+        <p id="file-name" class="text-xs mt-3 text-green-400 hidden"></p>
+      </div>
+
+      <input type="file" name="backup_file" id="backup_file" accept=".zip" class="hidden" required>
+
+      <!-- Options -->
+      <div class="mb-6">
+        <label class="flex items-start gap-3 cursor-pointer group">
+          <div class="mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition"
+               style="border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.04)"
+               id="checkbox-box">
+            <i class="fas fa-check text-xs text-green-400 hidden" id="checkbox-tick"></i>
+          </div>
+          <input type="checkbox" name="skip_existing" id="skip_existing" class="hidden" checked>
+          <div>
+            <p class="text-sm font-semibold">Skip duplicate records</p>
+            <p class="text-xs mt-0.5" style="color:rgba(255,255,255,0.4)">
+              Projects with the same name and experiences with the same company + position will be skipped.
+              Uncheck to import everything, including duplicates.
+            </p>
+          </div>
+        </label>
+      </div>
+
+      <div class="divider mb-6"></div>
+
+      <!-- Warning -->
+      <div class="flex gap-3 mb-6 p-4 rounded-xl" style="background:rgba(234,179,8,0.06);border:1px solid rgba(234,179,8,0.2)">
+        <i class="fas fa-exclamation-triangle text-yellow-400 text-sm mt-0.5 shrink-0"></i>
+        <p class="text-xs" style="color:rgba(234,179,8,0.8)">
+          This action will <strong>add</strong> records to your database. It does not delete existing data.
+          If you want a clean import, clear your current data first.
+        </p>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex items-center gap-3">
+        <button type="submit" id="submit-btn" class="btn-primary px-6 py-2.5 text-sm">
+          <i class="fas fa-upload text-xs"></i> Import Backup
+        </button>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-outline px-5 py-2.5 text-sm">
+          Cancel
+        </a>
+        <span id="loading-msg" class="text-xs muted hidden">
+          <i class="fas fa-spinner fa-spin mr-1"></i> Importing, please wait…
+        </span>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // ── File picker & drag-drop ───────────────────────────────────────────────
+  const input    = document.getElementById('backup_file');
+  const dropZone = document.getElementById('drop-zone');
+  const fileName = document.getElementById('file-name');
+
+  function showFile(file) {
+    if (!file) return;
+    fileName.textContent = '✓ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+    fileName.classList.remove('hidden');
+    dropZone.style.borderColor = 'rgba(34,197,94,0.5)';
+    dropZone.style.background  = 'rgba(34,197,94,0.04)';
+  }
+
+  input.addEventListener('change', () => showFile(input.files[0]));
+
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'rgba(34,197,94,0.6)';
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.borderColor = 'rgba(255,255,255,0.12)';
+  });
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      showFile(file);
+    }
+  });
+
+  // ── Custom checkbox ───────────────────────────────────────────────────────
+  const checkboxInput = document.getElementById('skip_existing');
+  const checkboxBox   = document.getElementById('checkbox-box');
+  const checkboxTick  = document.getElementById('checkbox-tick');
+
+  function syncCheckbox() {
+    if (checkboxInput.checked) {
+      checkboxBox.style.background     = 'rgba(34,197,94,0.15)';
+      checkboxBox.style.borderColor    = 'rgba(34,197,94,0.5)';
+      checkboxTick.classList.remove('hidden');
+    } else {
+      checkboxBox.style.background     = 'rgba(255,255,255,0.04)';
+      checkboxBox.style.borderColor    = 'rgba(255,255,255,0.2)';
+      checkboxTick.classList.add('hidden');
+    }
+  }
+
+  syncCheckbox(); // init
+  checkboxBox.parentElement.addEventListener('click', () => {
+    checkboxInput.checked = !checkboxInput.checked;
+    syncCheckbox();
+  });
+
+  // ── Loading state on submit ───────────────────────────────────────────────
+  document.getElementById('import-form').addEventListener('submit', function() {
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('loading-msg').classList.remove('hidden');
+  });
+</script>
+{% endblock %}

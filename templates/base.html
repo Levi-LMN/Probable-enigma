@@ -3,7 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Portfolio{% endblock %}</title>
+  <title>{% block title %}Levi Mukuha — Full Stack Developer & Cloud Engineer{% endblock %}</title>
+
+  <!-- PRIMARY META -->
+  <meta name="description"       content="{% block meta_description %}Levi Mukuha — Full Stack Developer, Cloud Engineer & Cybersecurity specialist based in Kenya. Building web apps, mobile solutions, and secure enterprise platforms.{% endblock %}">
+  <meta name="keywords"          content="{% block meta_keywords %}Levi Mukuha, Full Stack Developer, Flask Developer, Python Developer, Azure Engineer, Ethical Hacker, Power Platform, Kenya Developer, Web Development, Cybersecurity{% endblock %}">
+  <meta name="author"            content="Levi Mukuha">
+  <meta name="robots"            content="index, follow">
+  <meta name="theme-color"       content="#16a34a">
+  <link rel="canonical"          href="{{ request.url }}">
+
+  <!-- OPEN GRAPH -->
+  <meta property="og:type"        content="{% block og_type %}website{% endblock %}">
+  <meta property="og:site_name"   content="Levi Mukuha — Portfolio">
+  <meta property="og:title"       content="{% block og_title %}Levi Mukuha — Full Stack Developer & Cloud Engineer{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Full Stack Developer, Cloud Engineer & Cybersecurity specialist. Building web apps, mobile solutions, and secure enterprise platforms.{% endblock %}">
+  <meta property="og:url"         content="{{ request.url }}">
+  <meta property="og:image"       content="{% block og_image %}https://media.licdn.com/dms/image/v2/D4D03AQHHMoq4WKCLeg/profile-displayphoto-shrink_200_200/B4DZW.E42NHIAc-/0/1742650709739?e=2147483647&v=beta&t=5SmhEQYW71yfCvO7zCWnSRPvU_PuhTn-ASmUwhaj1mo{% endblock %}">
+  <meta property="og:image:alt"   content="Levi Mukuha">
+  <meta property="og:locale"      content="en_KE">
+
+  <!-- TWITTER CARD -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="{% block twitter_title %}Levi Mukuha — Full Stack Developer{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}Full Stack Developer, Cloud Engineer & Cybersecurity specialist. Building web apps, mobile solutions, and secure enterprise platforms.{% endblock %}">
+  <meta name="twitter:image"       content="{% block twitter_image %}https://media.licdn.com/dms/image/v2/D4D03AQHHMoq4WKCLeg/profile-displayphoto-shrink_200_200/B4DZW.E42NHIAc-/0/1742650709739?e=2147483647&v=beta&t=5SmhEQYW71yfCvO7zCWnSRPvU_PuhTn-ASmUwhaj1mo{% endblock %}">
+
+  <!-- JSON-LD STRUCTURED DATA -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Levi Mukuha",
+    "url": "{{ request.host_url }}",
+    "image": "https://media.licdn.com/dms/image/v2/D4D03AQHHMoq4WKCLeg/profile-displayphoto-shrink_200_200/B4DZW.E42NHIAc-/0/1742650709739?e=2147483647&v=beta&t=5SmhEQYW71yfCvO7zCWnSRPvU_PuhTn-ASmUwhaj1mo",
+    "jobTitle": "Full Stack Developer & Cloud Engineer",
+    "worksFor": { "@type": "Organization", "name": "Freelance" },
+    "address": { "@type": "PostalAddress", "addressCountry": "KE" },
+    "email": "Levimukuha@gmail.com",
+    "telephone": "+254748778517",
+    "sameAs": [
+      "https://www.linkedin.com/in/levi-mukuha-54b2391bb/",
+      "https://github.com/levimukuha",
+      "https://wa.me/+254748778517"
+    ],
+    "knowsAbout": ["Web Development", "Cloud Architecture", "Cybersecurity", "Python", "Azure", "Power Platform"]
+  }
+  </script>
+  {% block extra_schema %}{% endblock %}
+
+  <link rel="icon" type="image/x-icon"       href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+  <link rel="icon" type="image/png" sizes="16x16"  href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32"  href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180"     href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='favicon/android-chrome-192x192.png') }}">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='favicon/android-chrome-512x512.png') }}">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -23,66 +77,66 @@
 
   <style>
     html { scroll-behavior: smooth; }
-    body { background: #080808; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
+    body { background: #f5f6f8; color: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(0,0,0,0.045) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
     section, nav, footer { position: relative; z-index: 1; }
 
     /* NAV */
-    nav { background: rgba(8,8,8,0.85); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .nav-link { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 400; transition: color 0.2s; position: relative; padding-bottom: 2px; }
-    .nav-link:hover { color: #fff; }
-    .nav-link.active { color: #22c55e; }
+    nav { background: rgba(245,246,248,0.92); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .nav-link { font-size: 0.85rem; color: #64748b; font-weight: 400; transition: color 0.2s; position: relative; padding-bottom: 2px; }
+    .nav-link:hover { color: #0f172a; }
+    .nav-link.active { color: #16a34a; }
 
     /* BUTTONS */
-    .btn-primary { background: #22c55e; color: #000; font-weight: 600; font-size: 0.875rem; border-radius: 100px; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; display: inline-block; }
-    .btn-primary:hover { background: #4ade80; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(34,197,94,0.25); }
-    .btn-outline { border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-weight: 500; font-size: 0.875rem; border-radius: 100px; transition: border-color 0.2s, color 0.2s, background 0.2s; display: inline-block; }
-    .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; background: rgba(255,255,255,0.04); }
+    .btn-primary { background: #16a34a; color: #fff; font-weight: 600; font-size: 0.875rem; border-radius: 100px; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; display: inline-block; }
+    .btn-primary:hover { background: #15803d; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(22,163,74,0.25); }
+    .btn-outline { border: 1px solid rgba(0,0,0,0.14); color: #374151; font-weight: 500; font-size: 0.875rem; border-radius: 100px; transition: border-color 0.2s, color 0.2s, background 0.2s; display: inline-block; }
+    .btn-outline:hover { border-color: rgba(0,0,0,0.28); color: #0f172a; background: rgba(0,0,0,0.04); }
 
     /* CARDS */
-    .card { background: #111; border: 1px solid rgba(255,255,255,0.07); border-radius: 24px; transition: border-color 0.3s, background 0.3s; }
-    .card:hover { border-color: rgba(34,197,94,0.3); background: #141414; }
-    .card-green { border-color: rgba(34,197,94,0.2); }
-    .card-green:hover { border-color: rgba(34,197,94,0.5); box-shadow: 0 0 0 1px rgba(34,197,94,0.1); }
-    .icon-wrap { width: 48px; height: 48px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+    .card { background: #fff; border: 1px solid rgba(0,0,0,0.07); border-radius: 24px; transition: border-color 0.3s, background 0.3s, box-shadow 0.3s; }
+    .card:hover { border-color: rgba(22,163,74,0.25); background: #fefefe; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+    .card-green { border-color: rgba(22,163,74,0.2); }
+    .card-green:hover { border-color: rgba(22,163,74,0.45); box-shadow: 0 4px 24px rgba(22,163,74,0.08); }
+    .icon-wrap { width: 48px; height: 48px; background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.18); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
 
     /* MISC */
-    .tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #22c55e; border-radius: 100px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; padding: 4px 12px; }
-    .tag .dot { width: 5px; height: 5px; background: #22c55e; border-radius: 50%; flex-shrink: 0; }
-    .stat-n { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
-    .sec-title { font-size: clamp(1.8rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; }
-    .muted { color: rgba(255,255,255,0.45); }
-    .muted-sm { color: rgba(255,255,255,0.35); }
-    .divider { border-top: 1px solid rgba(255,255,255,0.06); }
+    .tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.2); color: #16a34a; border-radius: 100px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; padding: 4px 12px; }
+    .tag .dot { width: 5px; height: 5px; background: #16a34a; border-radius: 50%; flex-shrink: 0; }
+    .stat-n { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: #0f172a; }
+    .sec-title { font-size: clamp(1.8rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; color: #0f172a; }
+    .muted { color: #64748b; }
+    .muted-sm { color: #94a3b8; }
+    .divider { border-top: 1px solid rgba(0,0,0,0.08); }
     .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
     .reveal.on { opacity: 1; transform: translateY(0); }
 
     /* RULE LABEL */
-    .rule-label { display: flex; align-items: center; gap: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; }
-    .rule-label::after { content: ''; flex: 1; height: 1px; background: rgba(34,197,94,0.2); }
+    .rule-label { display: flex; align-items: center; gap: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #16a34a; }
+    .rule-label::after { content: ''; flex: 1; height: 1px; background: rgba(22,163,74,0.2); }
 
     /* FEAT */
-    .feat { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: rgba(255,255,255,0.5); }
-    .feat::before { content: ''; width: 4px; height: 4px; background: #22c55e; border-radius: 50%; flex-shrink: 0; }
+    .feat { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: #64748b; }
+    .feat::before { content: ''; width: 4px; height: 4px; background: #16a34a; border-radius: 50%; flex-shrink: 0; }
 
     /* TICKER */
     .ticker-inner { display: flex; animation: tick 20s linear infinite; white-space: nowrap; }
     @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .tick-item { padding: 0 24px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
-    .tick-dot { color: #22c55e; padding: 0 4px; }
+    .tick-item { padding: 0 24px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(0,0,0,0.28); }
+    .tick-dot { color: #16a34a; padding: 0 4px; }
 
     /* LIVE DOT */
     @keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(1.8); opacity: 0; } }
     .live-dot { position: relative; display: inline-flex; }
-    .live-dot span { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; display: block; }
-    .live-dot::before { content: ''; position: absolute; inset: 0; background: #22c55e; border-radius: 50%; animation: ping 1.6s ease-out infinite; }
+    .live-dot span { width: 7px; height: 7px; background: #16a34a; border-radius: 50%; display: block; }
+    .live-dot::before { content: ''; position: absolute; inset: 0; background: #16a34a; border-radius: 50%; animation: ping 1.6s ease-out infinite; }
 
     /* TECH CHIP */
-    .tech-chip { font-size: 0.72rem; padding: 3px 10px; border-radius: 100px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); display: inline-block; }
+    .tech-chip { font-size: 0.72rem; padding: 3px 10px; border-radius: 100px; background: #f1f5f9; color: #475569; display: inline-block; border: 1px solid rgba(0,0,0,0.07); }
 
     /* MOBILE MENU */
     #mob-menu {
-      position: fixed; inset: 0; z-index: 98; background: #080808;
+      position: fixed; inset: 0; z-index: 98; background: #fff;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 1.75rem; transform: translateX(100%);
       transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
@@ -92,25 +146,28 @@
     #mob-close {
       position: absolute; top: 18px; right: 20px; width: 42px; height: 42px;
       display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50%; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);
       cursor: pointer; transition: background 0.2s, border-color 0.2s; z-index: 99;
     }
-    #mob-close:hover { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); }
-    #mob-close svg { width: 18px; height: 18px; color: rgba(255,255,255,0.7); transition: color 0.2s; }
-    #mob-close:hover svg { color: #22c55e; }
-    .mob-link { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: rgba(255,255,255,0.6); transition: color 0.2s; }
-    .mob-link:hover, .mob-link.active { color: #fff; }
-    .mob-brand { position: absolute; top: 22px; left: 24px; font-weight: 800; font-size: 0.95rem; }
+    #mob-close:hover { background: rgba(22,163,74,0.1); border-color: rgba(22,163,74,0.3); }
+    #mob-close svg { width: 18px; height: 18px; color: #64748b; transition: color 0.2s; }
+    #mob-close:hover svg { color: #16a34a; }
+    .mob-link { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: #94a3b8; transition: color 0.2s; }
+    .mob-link:hover, .mob-link.active { color: #0f172a; }
+    .mob-brand { position: absolute; top: 22px; left: 24px; font-weight: 800; font-size: 0.95rem; color: #0f172a; }
 
     /* FLASH ALERTS */
-    .flash-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: #4ade80; }
-    .flash-danger  { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.25);  color: #f87171; }
-    .flash-warning { background: rgba(234,179,8,0.1);  border: 1px solid rgba(234,179,8,0.25);  color: #fbbf24; }
-    .flash-info    { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); color: #60a5fa; }
+    .flash-success { background: rgba(22,163,74,0.08);  border: 1px solid rgba(22,163,74,0.25);  color: #15803d; }
+    .flash-danger  { background: rgba(220,38,38,0.07);  border: 1px solid rgba(220,38,38,0.22);  color: #b91c1c; }
+    .flash-warning { background: rgba(202,138,4,0.08);  border: 1px solid rgba(202,138,4,0.22);  color: #b45309; }
+    .flash-info    { background: rgba(37,99,235,0.07);  border: 1px solid rgba(37,99,235,0.22);  color: #1d4ed8; }
 
     /* WORK GRID */
     .work-grid { display: grid; grid-template-columns: 200px 1fr; gap: 2rem; }
     @media (max-width: 640px) { .work-grid { grid-template-columns: 1fr; gap: 0.75rem; } }
+
+    /* FOOTER */
+    footer { background: #fff; border-top: 1px solid rgba(0,0,0,0.08); }
 
     /* RESPONSIVE */
     @media (max-width: 480px) {
@@ -133,7 +190,7 @@
 <nav class="fixed top-0 w-full z-50">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16">
     <a href="{{ url_for('public.index') }}" class="font-extrabold tracking-tight shrink-0" style="font-size:1.1rem;letter-spacing:-0.03em">
-      LMN
+      Levi Mukuha
     </a>
     <div class="hidden md:flex items-center gap-4 lg:gap-6">
       <a href="{{ url_for('public.index') }}" class="nav-link {% if request.endpoint == 'public.index' %}active{% endif %}">Home</a>
@@ -147,8 +204,8 @@
       <a href="{{ url_for('public.contact') }}" class="btn-primary px-4 lg:px-5 py-2 text-sm whitespace-nowrap">Get In Touch</a>
       {% endif %}
     </div>
-    <button id="mob-btn" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors" aria-label="Open menu">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <button id="mob-btn" class="md:hidden p-2 rounded-lg hover:bg-black/5 transition-colors" aria-label="Open menu">
+      <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
     </button>
@@ -157,7 +214,7 @@
 
 <!-- MOBILE MENU -->
 <div id="mob-menu" role="dialog" aria-modal="true">
-  <div class="mob-brand" style="letter-spacing:-0.03em">LMN</div>
+  <div class="mob-brand" style="letter-spacing:-0.03em">Levi Mukuha</div>
   <button id="mob-close" aria-label="Close menu">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -190,43 +247,44 @@
 {% endwith %}
 
 <!-- MAIN CONTENT -->
-<main style="padding-top: 80px">
+<main style="padding-top: 56px">
   {% block content %}{% endblock %}
 </main>
 
 <!-- FOOTER -->
-<footer class="px-4 sm:px-6 pb-8 sm:pb-10">
+<footer class="px-4 sm:px-6 pb-8 sm:pb-10 mt-8">
   <div class="max-w-6xl mx-auto divider pt-8 sm:pt-10">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-10">
       <div class="col-span-2 md:col-span-1">
-        <div class="font-extrabold text-sm sm:text-base mb-2 sm:mb-3" style="letter-spacing:-0.03em">LMN</div>
-        <p class="text-xs muted leading-relaxed max-w-[180px]">Levi Mukuha Nzau — Developer, builder, problem solver.</p>
+        <div class="font-extrabold text-sm sm:text-base mb-2 sm:mb-3" style="letter-spacing:-0.03em">Levi Mukuha</div>
+        <p class="text-xs muted leading-relaxed max-w-[180px]">Levi Mukuha — Developer, builder, problem solver.</p>
       </div>
       <div>
-        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Work</div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#16a34a">Work</div>
         <div class="space-y-2.5 sm:space-y-3 text-sm muted">
-          <a href="{{ url_for('public.projects') }}" class="block hover:text-white transition-colors">Projects</a>
-          <a href="{{ url_for('public.work') }}" class="block hover:text-white transition-colors">Experience</a>
+          <a href="{{ url_for('public.projects') }}" class="block hover:text-slate-900 transition-colors">Projects</a>
+          <a href="{{ url_for('public.work') }}" class="block hover:text-slate-900 transition-colors">Experience</a>
         </div>
       </div>
       <div>
-        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Company</div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#16a34a">Company</div>
         <div class="space-y-2.5 sm:space-y-3 text-sm muted">
-          <a href="{{ url_for('public.about') }}" class="block hover:text-white transition-colors">About</a>
-          <a href="{{ url_for('public.contact') }}" class="block hover:text-white transition-colors">Contact</a>
+          <a href="{{ url_for('public.about') }}" class="block hover:text-slate-900 transition-colors">About</a>
+          <a href="{{ url_for('public.contact') }}" class="block hover:text-slate-900 transition-colors">Contact</a>
         </div>
       </div>
       <div>
-        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Connect</div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#16a34a">Connect</div>
         <div class="space-y-2.5 sm:space-y-3 text-sm muted">
-          <a href="#" class="block hover:text-white transition-colors">GitHub</a>
-          <a href="#" class="block hover:text-white transition-colors">LinkedIn</a>
-          <a href="#" class="block hover:text-white transition-colors">Twitter</a>
+          <a href="https://github.com/levimukuha" target="_blank" class="block hover:text-slate-900 transition-colors">GitHub</a>
+          <a href="https://www.linkedin.com/in/levi-mukuha-54b2391bb/" target="_blank" class="block hover:text-slate-900 transition-colors">LinkedIn</a>
+          <a href="https://wa.me/+254748778517" target="_blank" class="block hover:text-slate-900 transition-colors">WhatsApp</a>
+          <a href="mailto:Levimukuha@gmail.com" class="block hover:text-slate-900 transition-colors">Email</a>
         </div>
       </div>
     </div>
     <div class="divider pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-3">
-      <div class="text-xs muted">&copy; {{ current_year }} Levi Mukuha Nzau. All rights reserved.</div>
+      <div class="text-xs muted">&copy; {{ current_year }} Levi Mukuha. All rights reserved.</div>
       <div class="flex items-center gap-2">
         <div class="live-dot"><span style="width:5px;height:5px"></span></div>
         <span class="text-xs muted">All systems operational</span>

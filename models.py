@@ -2,6 +2,7 @@
 # FILE: models.py - Database Models
 # ============================================================================
 from datetime import datetime
+import re
 from app import db
 from sqlalchemy import func
 
@@ -91,6 +92,15 @@ class Project(db.Model):
     @property
     def technologies_list(self):
         return [tech.technology for tech in self.technologies]
+
+    @property
+    def slug(self):
+        """URL-friendly version of project name for SEO."""
+        s = self.name.lower()
+        s = re.sub(r'[^\w\s-]', '', s)
+        s = re.sub(r'[\s_]+', '-', s)
+        s = re.sub(r'-+', '-', s)
+        return s.strip('-')
 
     @property
     def primary_image(self):

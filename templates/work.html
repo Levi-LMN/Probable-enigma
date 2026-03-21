@@ -6,16 +6,16 @@
 {% block extra_head %}
 <style>
   /* Vertical timeline line */
-  .timeline-line { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: linear-gradient(to bottom, rgba(34,197,94,0.5), rgba(34,197,94,0.05)); }
-  .timeline-dot { position: absolute; left: -5px; top: 20px; width: 11px; height: 11px; border-radius: 50%; background: #22c55e; border: 2px solid #080808; box-shadow: 0 0 0 2px rgba(34,197,94,0.25); z-index: 1; }
-  .timeline-dot-muted { position: absolute; left: -5px; top: 20px; width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid #080808; box-shadow: 0 0 0 2px rgba(255,255,255,0.08); z-index: 1; }
+  .timeline-line { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: linear-gradient(to bottom, rgba(22,163,74,0.4), rgba(22,163,74,0.04)); }
+  .timeline-dot { position: absolute; left: -5px; top: 20px; width: 11px; height: 11px; border-radius: 50%; background: #16a34a; border: 2px solid #f5f6f8; box-shadow: 0 0 0 2px rgba(22,163,74,0.2); z-index: 1; }
+  .timeline-dot-muted { position: absolute; left: -5px; top: 20px; width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid #f5f6f8; box-shadow: 0 0 0 2px rgba(255,255,255,0.08); z-index: 1; }
 </style>
 {% endblock %}
 
 {% block content %}
 
 <!-- PAGE HEADER -->
-<section class="py-14 sm:py-20 px-4 sm:px-6">
+<section class="pt-6 pb-14 sm:pt-8 sm:pb-20 px-4 sm:px-6">
   <div class="max-w-6xl mx-auto">
     <div class="reveal">
       <div class="rule-label mb-4 sm:mb-6">Career</div>
@@ -41,7 +41,7 @@
         {% if experience.is_current %}
         <div class="timeline-dot">
           <!-- Pulse ring for current -->
-          <div style="position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(34,197,94,0.4);animation:ping 1.8s ease-out infinite;"></div>
+          <div style="position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(22,163,74,0.35);animation:ping 1.8s ease-out infinite;"></div>
         </div>
         {% else %}
         <div class="timeline-dot-muted"></div>
@@ -59,13 +59,13 @@
               {% endif %}
               <span class="font-extrabold text-sm sm:text-base tracking-tight">{{ experience.company_name }}</span>
               {% if experience.is_current %}
-              <span class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0" style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">Current</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full shrink-0" style="background:rgba(34,197,94,0.12);color:#16a34a;border:1px solid rgba(22,163,74,0.2)">Current</span>
               {% endif %}
             </div>
             <div class="shrink-0">
-              <p class="text-xs font-mono font-medium" style="color:rgba(255,255,255,0.3)">
+              <p class="text-xs font-mono font-medium" style="color:#94a3b8">
                 {{ experience.start_date.strftime('%b %Y') }} &mdash;
-                {% if experience.is_current %}<span style="color:#22c55e">Present</span>
+                {% if experience.is_current %}<span style="color:#16a34a">Present</span>
                 {% elif experience.end_date %}{{ experience.end_date.strftime('%b %Y') }}
                 {% endif %}
               </p>
@@ -81,7 +81,7 @@
           </h3>
 
           <!-- Divider -->
-          <div class="mb-3 sm:mb-4" style="height:1px;background:rgba(255,255,255,0.05)"></div>
+          <div class="mb-3 sm:mb-4" style="height:1px;background:rgba(0,0,0,0.07)"></div>
 
           <!-- Description -->
           <p class="text-xs sm:text-sm muted leading-relaxed mb-4 sm:mb-5">{{ experience.description }}</p>
@@ -100,14 +100,14 @@
 
       <!-- End cap -->
       <div class="relative pl-4" style="padding-top:4px">
-        <div style="position:absolute;left:-4px;top:4px;width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1)"></div>
+        <div style="position:absolute;left:-4px;top:4px;width:9px;height:9px;border-radius:50%;background:rgba(0,0,0,0.08);border:1px solid rgba(255,255,255,0.1)"></div>
         <p class="text-xs muted-sm italic ml-4">Where the journey began…</p>
       </div>
     </div>
 
     {% else %}
     <div class="card p-20 text-center reveal">
-      <svg class="w-14 h-14 mx-auto mb-5 opacity-15" fill="none" stroke="#22c55e" stroke-width="1.2" viewBox="0 0 24 24">
+      <svg class="w-14 h-14 mx-auto mb-5 opacity-15" fill="none" stroke="#16a34a" stroke-width="1.2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
       </svg>
       <h3 class="font-extrabold text-lg mb-2 tracking-tight">No Work Experience Yet</h3>
@@ -119,14 +119,14 @@
 
 
 <!-- SKILLS SUMMARY -->
-<section class="py-12 sm:py-16 px-4 sm:px-6" style="border-top:1px solid rgba(255,255,255,0.06)">
+<section class="py-12 sm:py-16 px-4 sm:px-6" style="border-top:1px solid rgba(0,0,0,0.08)">
   <div class="max-w-6xl mx-auto">
     <div class="rule-label mb-6 sm:mb-10 reveal">What I bring</div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 reveal" style="transition-delay:0.1s">
 
       <div class="card p-6 sm:p-8 group">
         <div class="icon-wrap mb-5">
-          <svg class="w-5 h-5" fill="none" stroke="#22c55e" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="#16a34a" stroke-width="1.8" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
           </svg>
         </div>
@@ -136,7 +136,7 @@
 
       <div class="card p-6 sm:p-8 group">
         <div class="icon-wrap mb-5">
-          <svg class="w-5 h-5" fill="none" stroke="#22c55e" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="#16a34a" stroke-width="1.8" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
           </svg>
         </div>
@@ -146,7 +146,7 @@
 
       <div class="card p-6 sm:p-8 group">
         <div class="icon-wrap mb-5">
-          <svg class="w-5 h-5" fill="none" stroke="#22c55e" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg class="w-5 h-5" fill="none" stroke="#16a34a" stroke-width="1.8" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
         </div>
@@ -162,7 +162,7 @@
 <!-- CTA -->
 <section class="py-12 sm:py-16 px-4 sm:px-6">
   <div class="max-w-6xl mx-auto">
-    <div class="card p-8 sm:p-12 text-center reveal" style="border-color:rgba(34,197,94,0.15)">
+    <div class="card p-8 sm:p-12 text-center reveal" style="border-color:rgba(22,163,74,0.2)">
       <h2 class="sec-title mb-4">Interested in<br>working together?</h2>
       <p class="muted text-sm sm:text-base mb-8 max-w-lg mx-auto leading-relaxed">
         Let's talk about how my experience can benefit your next project.

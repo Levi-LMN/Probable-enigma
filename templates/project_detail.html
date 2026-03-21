@@ -1,16 +1,49 @@
 {% extends "base.html" %}
 
-{% block title %}{{ project.name }} — LMN Portfolio{% endblock %}
-{% block breadcrumb %}{{ project.name }}{% endblock %}
+{% block title %}{{ project.name }} — Levi Mukuha Portfolio{% endblock %}
+
+{% block meta_description %}{{ project.description[:160] }}{% endblock %}
+{% block meta_keywords %}{{ project.technologies_list | join(', ') }}, {{ project.category }}, Levi Mukuha, Portfolio Project{% endblock %}
+
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ project.name }} — Levi Mukuha{% endblock %}
+{% block og_description %}{{ project.description[:200] }}{% endblock %}
+{% if project.primary_image %}
+{% block og_image %}{{ request.host_url }}static/{{ project.primary_image.filename }}{% endblock %}
+{% endif %}
+
+{% block twitter_title %}{{ project.name }} — Levi Mukuha{% endblock %}
+{% block twitter_description %}{{ project.description[:200] }}{% endblock %}
+
+{% block extra_schema %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "{{ project.name }}",
+  "description": "{{ project.description[:300] | replace('"', '\\"') }}",
+  "author": {
+    "@type": "Person",
+    "name": "Levi Mukuha Nzau",
+    "url": "{{ request.host_url }}"
+  },
+  "programmingLanguage": [{% for tech in project.technologies_list %}"{{ tech }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+  {% if project.github_link %}"codeRepository": "{{ project.github_link }}",{% endif %}
+  {% if project.preview_link %}"url": "{{ project.preview_link }}",{% endif %}
+  "dateCreated": "{{ project.date_started.isoformat() if project.date_started else '' }}",
+  "dateModified": "{{ project.updated_at.isoformat() if project.updated_at else '' }}"
+}
+</script>
+{% endblock %}
 
 {% block content %}
 
 <!-- PROJECT HEADER -->
-<section class="py-14 sm:py-20 px-4 sm:px-6">
+<section class="pt-6 pb-14 sm:pt-8 sm:pb-20 px-4 sm:px-6">
   <div class="max-w-6xl mx-auto">
     <div class="reveal">
       <a href="{{ url_for('public.projects') }}"
-         class="inline-flex items-center gap-2 text-xs font-semibold mb-8 transition-colors muted hover:text-white">
+         class="inline-flex items-center gap-2 text-xs font-semibold mb-8 transition-colors muted hover:text-slate-900">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
         </svg>
@@ -19,11 +52,11 @@
 
       <div class="flex flex-wrap items-center gap-3 mb-5 sm:mb-6">
         <span class="tag">{{ project.category }}</span>
-        {% if project.is_featured %}<span class="tag" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08)">&#9733; Featured</span>{% endif %}
+        {% if project.is_featured %}<span class="tag" style="color:#d97706;border-color:rgba(217,119,6,0.25);background:rgba(217,119,6,0.08)">&#9733; Featured</span>{% endif %}
         {% if project.date_completed %}
-        <span class="text-xs font-semibold px-3 py-1 rounded-full" style="color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2)">Completed</span>
+        <span class="text-xs font-semibold px-3 py-1 rounded-full" style="color:#16a34a;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2)">Completed</span>
         {% else %}
-        <span class="text-xs font-semibold px-3 py-1 rounded-full" style="color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2)">In Progress</span>
+        <span class="text-xs font-semibold px-3 py-1 rounded-full" style="color:#2563eb;background:rgba(37,99,235,0.07);border:1px solid rgba(37,99,235,0.2)">In Progress</span>
         {% endif %}
       </div>
 
@@ -92,7 +125,7 @@
               </div>
             </div>
             {% if project.images[0].caption %}
-            <div class="px-5 py-3" style="border-top:1px solid rgba(255,255,255,0.06)">
+            <div class="px-5 py-3" style="border-top:1px solid rgba(0,0,0,0.08)">
               <p class="text-xs sm:text-sm muted">{{ project.images[0].caption }}</p>
             </div>
             {% endif %}
@@ -287,7 +320,7 @@
         <!-- Description -->
         <div class="reveal">
           <div class="rule-label mb-5 sm:mb-6">About this project</div>
-          <div class="text-sm sm:text-base muted leading-relaxed" style="color:rgba(255,255,255,0.6)">
+          <div class="text-sm sm:text-base muted leading-relaxed" style="color:#475569">
             {{ project.description | replace('\n', '<br>') | safe }}
           </div>
         </div>
@@ -298,17 +331,17 @@
 
         <!-- Technologies -->
         <div class="card p-5 sm:p-6 reveal">
-          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#22c55e">Technologies</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#16a34a">Technologies</h3>
           <div class="flex flex-wrap gap-2">
             {% for tech in project.technologies_list %}
-            <span class="tech-chip" style="background:rgba(34,197,94,0.08);color:rgba(255,255,255,0.6)">{{ tech }}</span>
+            <span class="tech-chip" style="background:rgba(34,197,94,0.08);color:#475569">{{ tech }}</span>
             {% endfor %}
           </div>
         </div>
 
         <!-- Project Info -->
         <div class="card p-5 sm:p-6 reveal" style="transition-delay:0.1s">
-          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#22c55e">Project Info</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#16a34a">Project Info</h3>
           <div class="space-y-4">
             <div>
               <p class="text-xs muted-sm mb-1 uppercase tracking-wider">Category</p>
@@ -337,11 +370,11 @@
 
         <!-- Share -->
         <div class="card p-5 sm:p-6 reveal" style="transition-delay:0.2s">
-          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#22c55e">Share</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#16a34a">Share</h3>
           <div class="flex gap-2">
-            <button onclick="shareOnTwitter()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(29,161,242,0.1);color:rgba(29,161,242,0.8);border:1px solid rgba(29,161,242,0.2)" onmouseover="this.style.background='rgba(29,161,242,0.2)'" onmouseout="this.style.background='rgba(29,161,242,0.1)'">Twitter</button>
-            <button onclick="shareOnLinkedIn()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(10,102,194,0.1);color:rgba(10,102,194,0.8);border:1px solid rgba(10,102,194,0.2)" onmouseover="this.style.background='rgba(10,102,194,0.2)'" onmouseout="this.style.background='rgba(10,102,194,0.1)'">LinkedIn</button>
-            <button onclick="copyLink()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.08)" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">Copy</button>
+            <button onclick="shareOnTwitter()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(29,161,242,0.08);color:#0369a1;border:1px solid rgba(29,161,242,0.2)" onmouseover="this.style.background='rgba(29,161,242,0.2)'" onmouseout="this.style.background='rgba(29,161,242,0.1)'">Twitter</button>
+            <button onclick="shareOnLinkedIn()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(10,102,194,0.08);color:#1d4ed8;border:1px solid rgba(10,102,194,0.2)" onmouseover="this.style.background='rgba(10,102,194,0.2)'" onmouseout="this.style.background='rgba(10,102,194,0.1)'">LinkedIn</button>
+            <button onclick="copyLink()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(0,0,0,0.04);color:#64748b;border:1px solid rgba(0,0,0,0.1)" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">Copy</button>
           </div>
         </div>
       </div>
@@ -351,29 +384,29 @@
 
 <!-- RELATED PROJECTS -->
 {% if related_projects %}
-<section class="py-12 sm:py-16 px-4 sm:px-6" style="border-top:1px solid rgba(255,255,255,0.06)">
+<section class="py-12 sm:py-16 px-4 sm:px-6" style="border-top:1px solid rgba(0,0,0,0.08)">
   <div class="max-w-6xl mx-auto">
     <div class="rule-label mb-6 sm:mb-8 reveal">Related Projects</div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 reveal" style="transition-delay:0.1s">
       {% for related in related_projects %}
       <div class="card p-5 sm:p-6 flex flex-col group">
         {% if related.primary_image %}
-        <div class="rounded-xl overflow-hidden mb-4" style="height:120px;background:#1a1a1a">
+        <div class="rounded-xl overflow-hidden mb-4" style="height:120px;background:#f1f5f9">
           <img src="{{ url_for('static', filename=related.primary_image.filename) }}"
                alt="{{ related.name }}"
                class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
         </div>
         {% else %}
-        <div class="rounded-xl mb-4 flex items-center justify-center" style="height:120px;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.1)">
-          <svg class="w-8 h-8 opacity-20" fill="none" stroke="#22c55e" stroke-width="1.5" viewBox="0 0 24 24">
+        <div class="rounded-xl mb-4 flex items-center justify-center" style="height:120px;background:rgba(22,163,74,0.04);border:1px solid rgba(22,163,74,0.1)">
+          <svg class="w-8 h-8 opacity-20" fill="none" stroke="#16a34a" stroke-width="1.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
           </svg>
         </div>
         {% endif %}
         <h3 class="font-extrabold text-sm mb-2 tracking-tight group-hover:text-green-400 transition-colors">{{ related.name }}</h3>
         <p class="text-xs muted leading-relaxed flex-1 mb-4">{{ related.description[:100] }}...</p>
-        <a href="{{ url_for('public.project_detail', project_id=related.id) }}"
-           class="inline-flex items-center gap-1.5 text-xs font-semibold group-hover:gap-3 transition-all" style="color:#22c55e">
+        <a href="{{ url_for('public.project_detail', project_id=related.id, slug=related.slug) }}"
+           class="inline-flex items-center gap-1.5 text-xs font-semibold group-hover:gap-3 transition-all" style="color:#16a34a">
           View &#8594;
         </a>
       </div>

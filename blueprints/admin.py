@@ -601,3 +601,349 @@ def toggle_experience_visibility(experience_id):
 def get_technologies(category):
     """Get technologies for a category (AJAX)"""
     return jsonify(TECHNOLOGIES.get(category, []))
+
+
+# ============================================================================
+# BACKUP & IMPORT
+# ============================================================================
+
+@admin_bp.route('/backup')
+@admin_required
+def download_backup():
+    """Download a full ZIP backup of all data and images."""
+    import zipfile, io, json
+    from flask import send_file
+
+    projects_data = []
+    for p in Project.query.all():
+        projects_data.append({
+            'id': p.id,
+            'name': p.name,
+            'description': p.description,
+            'github_link': p.github_link,
+            'preview_link': p.preview_link,
+            'date_started': str(p.date_started) if p.date_started else None,
+            'date_completed': str(p.date_completed) if p.date_completed else None,
+            'category': p.category,
+            'display_order': p.display_order,
+            'is_visible': p.is_visible,
+            'is_featured': p.is_featured,
+            'technologies': p.technologies_list,
+            'images': [
+                {'filename': img.filename, 'caption': img.caption, 'display_order': img.display_order}
+                for img in p.images
+            ]
+        })
+
+    experiences_data = []
+    for e in WorkExperience.query.all():
+        experiences_data.append({
+            'id': e.id,
+            'company_name': e.company_name,
+            'position': e.position,
+            'description': e.description,
+            'location': e.location,
+            'start_date': str(e.start_date) if e.start_date else None,
+            'end_date': str(e.end_date) if e.end_date else None,
+            'is_current': e.is_current,
+            'technologies': e.technologies,
+            'company_logo': e.company_logo,
+            'display_order': e.display_order,
+            'is_visible': e.is_visible
+        })
+
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr('data/projects.json', json.dumps(projects_data, indent=2))
+        zf.writestr('data/experiences.json', json.dumps(experiences_data, indent=2))
+
+        upload_folder = os.path.join('static', current_app.config['UPLOAD_FOLDER'])
+        if not os.path.isabs(upload_folder):
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+        # Walk the whole uploads tree
+        base = os.path.join('static', 'uploads')
+        if os.path.exists(base):
+            for root, dirs, files in os.walk(base):
+                for fname in files:
+                    fpath = os.path.join(root, fname)
+                    arcname = os.path.relpath(fpath, 'static')  # e.g. uploads/projects/abc.jpg
+                    zf.write(fpath, f'images/{arcname}')
+
+    zip_buffer.seek(0)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    return send_file(
+        zip_buffer,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name=f'portfolio_backup_{timestamp}.zip'
+    )
+
+
+@admin_bp.route('/import', methods=['GET', 'POST'])
+@admin_required
+def import_backup():
+    """Import data from an old or new system backup ZIP."""
+    import zipfile, io, json
+    from datetime import date as date_type
+
+    if request.method == 'GET':
+        return render_template('admin/import.html')
+
+    # ── POST: process the uploaded ZIP ──────────────────────────────────────
+    if 'backup_file' not in request.files or not request.files['backup_file'].filename:
+        flash('No file selected.', 'danger')
+        return redirect(url_for('admin.import_backup'))
+
+    zip_file = request.files['backup_file']
+    if not zip_file.filename.endswith('.zip'):
+        flash('Please upload a .zip file.', 'danger')
+        return redirect(url_for('admin.import_backup'))
+
+    skip_existing = request.form.get('skip_existing') == 'on'
+
+    try:
+        zip_bytes = io.BytesIO(zip_file.read())
+
+        with zipfile.ZipFile(zip_bytes, 'r') as zf:
+            namelist = zf.namelist()
+
+            # ── Helper: parse a date string safely ──────────────────────────
+            def parse_date(val):
+                if not val:
+                    return None
+                try:
+                    return datetime.strptime(val, '%Y-%m-%d').date()
+                except Exception:
+                    return None
+
+            # ── Helper: copy an image from the ZIP to the filesystem ─────────
+            def extract_image(zip_filename_in_archive, dest_subfolder):
+                """
+                zip_filename_in_archive: path inside the zip  e.g. 'images/abc.jpg'
+                dest_subfolder: 'projects' or 'experience'
+                Returns the new relative path stored in DB, e.g. 'uploads/projects/abc.jpg'
+                """
+                if not zip_filename_in_archive or zip_filename_in_archive not in namelist:
+                    return None
+                try:
+                    basename = os.path.basename(zip_filename_in_archive)
+                    dest_dir = os.path.join('static', 'uploads', dest_subfolder)
+                    os.makedirs(dest_dir, exist_ok=True)
+                    dest_path = os.path.join(dest_dir, basename)
+                    with zf.open(zip_filename_in_archive) as src, open(dest_path, 'wb') as dst:
+                        dst.write(src.read())
+                    return f'uploads/{dest_subfolder}/{basename}'
+                except Exception as e:
+                    current_app.logger.warning(f"Could not extract image {zip_filename_in_archive}: {e}")
+                    return None
+
+            # ── Detect which backup format the ZIP contains ──────────────────
+            # New system stores 'data/projects.json' with key 'name'
+            # Old system stores 'data/projects.json' with key 'ProjectName'
+            # Images in new backups: 'images/uploads/projects/...'
+            # Images in old backups: 'images/abc.jpg'
+
+            def read_json(path):
+                if path in namelist:
+                    return json.loads(zf.read(path).decode('utf-8'))
+                return None
+
+            raw_projects = read_json('data/projects.json') or []
+            raw_experiences = read_json('data/experiences.json') or []
+
+            # Detect format by checking first project record
+            is_old_format = (
+                raw_projects and 'ProjectName' in raw_projects[0]
+            ) or (
+                raw_experiences and 'CompanyName' in raw_experiences[0]
+            )
+
+            # ── Normalise records to new-system field names ──────────────────
+            def normalise_project(p):
+                if is_old_format:
+                    return {
+                        'name':          p.get('ProjectName', ''),
+                        'description':   p.get('Description', ''),
+                        'github_link':   p.get('GitHubLink'),
+                        'preview_link':  p.get('PreviewLink'),
+                        'date_started':  p.get('DateStarted'),
+                        'date_completed':p.get('DateCompleted'),
+                        'category':      p.get('Category', 'Other'),
+                        'display_order': 0,
+                        'is_visible':    True,
+                        'is_featured':   False,
+                        'technologies':  p.get('Technologies', []),
+                        # Old screenshots list: [{filename:'screenshots/abc.jpg', caption:'', order:0}]
+                        'images': [
+                            {
+                                'filename':      f"images/{os.path.basename(s.get('filename', ''))}",
+                                'caption':       s.get('caption', ''),
+                                'display_order': s.get('order', i)
+                            }
+                            for i, s in enumerate(p.get('Screenshots', []))
+                        ]
+                    }
+                else:
+                    imgs = []
+                    for img in p.get('images', []):
+                        fn = img.get('filename', '')  # e.g. 'uploads/projects/abc.jpg'
+                        imgs.append({
+                            'filename':      f"images/{fn}",
+                            'caption':       img.get('caption', ''),
+                            'display_order': img.get('display_order', 0)
+                        })
+                    return {
+                        'name':          p.get('name', ''),
+                        'description':   p.get('description', ''),
+                        'github_link':   p.get('github_link'),
+                        'preview_link':  p.get('preview_link'),
+                        'date_started':  p.get('date_started'),
+                        'date_completed':p.get('date_completed'),
+                        'category':      p.get('category', 'Other'),
+                        'display_order': p.get('display_order', 0),
+                        'is_visible':    p.get('is_visible', True),
+                        'is_featured':   p.get('is_featured', False),
+                        'technologies':  p.get('technologies', []),
+                        'images':        imgs
+                    }
+
+            def normalise_experience(e):
+                if is_old_format:
+                    logo = e.get('CompanyLogo')
+                    logo_in_zip = f"images/{os.path.basename(logo)}" if logo else None
+                    return {
+                        'company_name':  e.get('CompanyName', ''),
+                        'position':      e.get('Position', ''),
+                        'description':   e.get('Description', ''),
+                        'location':      e.get('Location'),
+                        'start_date':    e.get('StartDate'),
+                        'end_date':      e.get('EndDate'),
+                        'is_current':    e.get('IsCurrentJob', False),
+                        'technologies':  e.get('Technologies'),
+                        'company_logo_in_zip': logo_in_zip,
+                        'display_order': 0,
+                        'is_visible':    True
+                    }
+                else:
+                    logo = e.get('company_logo')
+                    logo_in_zip = f"images/{logo}" if logo else None
+                    return {
+                        'company_name':  e.get('company_name', ''),
+                        'position':      e.get('position', ''),
+                        'description':   e.get('description', ''),
+                        'location':      e.get('location'),
+                        'start_date':    e.get('start_date'),
+                        'end_date':      e.get('end_date'),
+                        'is_current':    e.get('is_current', False),
+                        'technologies':  e.get('technologies'),
+                        'company_logo_in_zip': logo_in_zip,
+                        'display_order': e.get('display_order', 0),
+                        'is_visible':    e.get('is_visible', True)
+                    }
+
+            # ── Import projects ──────────────────────────────────────────────
+            imported_projects = 0
+            skipped_projects = 0
+
+            for raw in raw_projects:
+                p = normalise_project(raw)
+
+                if not p['name']:
+                    continue
+
+                if skip_existing and Project.query.filter_by(name=p['name']).first():
+                    skipped_projects += 1
+                    continue
+
+                project = Project(
+                    name=p['name'],
+                    description=p['description'] or '',
+                    github_link=p['github_link'],
+                    preview_link=p['preview_link'],
+                    date_started=parse_date(p['date_started']),
+                    date_completed=parse_date(p['date_completed']),
+                    category=p['category'],
+                    display_order=p['display_order'],
+                    is_visible=p['is_visible'],
+                    is_featured=p['is_featured']
+                )
+
+                for tech in p['technologies']:
+                    if tech:
+                        project.technologies.append(ProjectTechnology(technology=tech))
+
+                for img_data in p['images']:
+                    new_path = extract_image(img_data['filename'], 'projects')
+                    if new_path:
+                        project.images.append(ProjectImage(
+                            filename=new_path,
+                            caption=img_data['caption'],
+                            display_order=img_data['display_order']
+                        ))
+
+                db.session.add(project)
+                imported_projects += 1
+
+            # ── Import work experiences ──────────────────────────────────────
+            imported_experiences = 0
+            skipped_experiences = 0
+
+            for raw in raw_experiences:
+                e = normalise_experience(raw)
+
+                if not e['company_name'] or not e['start_date']:
+                    continue
+
+                if skip_existing and WorkExperience.query.filter_by(
+                    company_name=e['company_name'],
+                    position=e['position']
+                ).first():
+                    skipped_experiences += 1
+                    continue
+
+                logo_path = extract_image(e['company_logo_in_zip'], 'experience')
+
+                exp = WorkExperience(
+                    company_name=e['company_name'],
+                    position=e['position'],
+                    description=e['description'] or '',
+                    location=e['location'],
+                    start_date=parse_date(e['start_date']),
+                    end_date=parse_date(e['end_date']),
+                    is_current=e['is_current'],
+                    technologies=e['technologies'],
+                    company_logo=logo_path,
+                    display_order=e['display_order'],
+                    is_visible=e['is_visible']
+                )
+                db.session.add(exp)
+                imported_experiences += 1
+
+            db.session.commit()
+
+        fmt_label = 'old system' if is_old_format else 'new system'
+        parts = []
+        if imported_projects:
+            parts.append(f'{imported_projects} project(s)')
+        if imported_experiences:
+            parts.append(f'{imported_experiences} experience(s)')
+        skipped_total = skipped_projects + skipped_experiences
+
+        if parts:
+            msg = f'Successfully imported {" and ".join(parts)} from {fmt_label} backup.'
+            if skipped_total:
+                msg += f' Skipped {skipped_total} duplicate(s).'
+            flash(msg, 'success')
+        else:
+            flash(f'Nothing imported — no new records found in {fmt_label} backup.', 'warning')
+
+        return redirect(url_for('admin.dashboard'))
+
+    except zipfile.BadZipFile:
+        flash('The uploaded file is not a valid ZIP archive.', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Import error: {e}")
+        flash(f'Import failed: {str(e)}', 'danger')
+
+    return redirect(url_for('admin.import_backup'))
