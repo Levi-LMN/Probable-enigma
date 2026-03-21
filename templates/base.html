@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Portfolio{% endblock %}</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #080808; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
+    section, nav, footer { position: relative; z-index: 1; }
+
+    /* NAV */
+    nav { background: rgba(8,8,8,0.85); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .nav-link { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 400; transition: color 0.2s; position: relative; padding-bottom: 2px; }
+    .nav-link:hover { color: #fff; }
+    .nav-link.active { color: #22c55e; }
+
+    /* BUTTONS */
+    .btn-primary { background: #22c55e; color: #000; font-weight: 600; font-size: 0.875rem; border-radius: 100px; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; display: inline-block; }
+    .btn-primary:hover { background: #4ade80; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(34,197,94,0.25); }
+    .btn-outline { border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-weight: 500; font-size: 0.875rem; border-radius: 100px; transition: border-color 0.2s, color 0.2s, background 0.2s; display: inline-block; }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; background: rgba(255,255,255,0.04); }
+
+    /* CARDS */
+    .card { background: #111; border: 1px solid rgba(255,255,255,0.07); border-radius: 24px; transition: border-color 0.3s, background 0.3s; }
+    .card:hover { border-color: rgba(34,197,94,0.3); background: #141414; }
+    .card-green { border-color: rgba(34,197,94,0.2); }
+    .card-green:hover { border-color: rgba(34,197,94,0.5); box-shadow: 0 0 0 1px rgba(34,197,94,0.1); }
+    .icon-wrap { width: 48px; height: 48px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+
+    /* MISC */
+    .tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #22c55e; border-radius: 100px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; padding: 4px 12px; }
+    .tag .dot { width: 5px; height: 5px; background: #22c55e; border-radius: 50%; flex-shrink: 0; }
+    .stat-n { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+    .sec-title { font-size: clamp(1.8rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; }
+    .muted { color: rgba(255,255,255,0.45); }
+    .muted-sm { color: rgba(255,255,255,0.35); }
+    .divider { border-top: 1px solid rgba(255,255,255,0.06); }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.on { opacity: 1; transform: translateY(0); }
+
+    /* RULE LABEL */
+    .rule-label { display: flex; align-items: center; gap: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; }
+    .rule-label::after { content: ''; flex: 1; height: 1px; background: rgba(34,197,94,0.2); }
+
+    /* FEAT */
+    .feat { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: rgba(255,255,255,0.5); }
+    .feat::before { content: ''; width: 4px; height: 4px; background: #22c55e; border-radius: 50%; flex-shrink: 0; }
+
+    /* TICKER */
+    .ticker-inner { display: flex; animation: tick 20s linear infinite; white-space: nowrap; }
+    @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .tick-item { padding: 0 24px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+    .tick-dot { color: #22c55e; padding: 0 4px; }
+
+    /* LIVE DOT */
+    @keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(1.8); opacity: 0; } }
+    .live-dot { position: relative; display: inline-flex; }
+    .live-dot span { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; display: block; }
+    .live-dot::before { content: ''; position: absolute; inset: 0; background: #22c55e; border-radius: 50%; animation: ping 1.6s ease-out infinite; }
+
+    /* TECH CHIP */
+    .tech-chip { font-size: 0.72rem; padding: 3px 10px; border-radius: 100px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); display: inline-block; }
+
+    /* MOBILE MENU */
+    #mob-menu {
+      position: fixed; inset: 0; z-index: 98; background: #080808;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1.75rem; transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      padding: 80px 24px 40px;
+    }
+    #mob-menu.open { transform: translateX(0); }
+    #mob-close {
+      position: absolute; top: 18px; right: 20px; width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer; transition: background 0.2s, border-color 0.2s; z-index: 99;
+    }
+    #mob-close:hover { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); }
+    #mob-close svg { width: 18px; height: 18px; color: rgba(255,255,255,0.7); transition: color 0.2s; }
+    #mob-close:hover svg { color: #22c55e; }
+    .mob-link { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: rgba(255,255,255,0.6); transition: color 0.2s; }
+    .mob-link:hover, .mob-link.active { color: #fff; }
+    .mob-brand { position: absolute; top: 22px; left: 24px; font-weight: 800; font-size: 0.95rem; }
+
+    /* FLASH ALERTS */
+    .flash-success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); color: #4ade80; }
+    .flash-danger  { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.25);  color: #f87171; }
+    .flash-warning { background: rgba(234,179,8,0.1);  border: 1px solid rgba(234,179,8,0.25);  color: #fbbf24; }
+    .flash-info    { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25); color: #60a5fa; }
+
+    /* WORK GRID */
+    .work-grid { display: grid; grid-template-columns: 200px 1fr; gap: 2rem; }
+    @media (max-width: 640px) { .work-grid { grid-template-columns: 1fr; gap: 0.75rem; } }
+
+    /* RESPONSIVE */
+    @media (max-width: 480px) {
+      .sec-title { font-size: clamp(1.6rem, 8vw, 2.5rem); }
+      .card { border-radius: 18px; }
+    }
+    @media (max-width: 768px) {
+      .projects-grid { grid-template-columns: 1fr !important; }
+    }
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .projects-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- FIXED NAV -->
+<nav class="fixed top-0 w-full z-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16">
+    <a href="{{ url_for('public.index') }}" class="font-extrabold tracking-tight shrink-0" style="font-size:1.1rem;letter-spacing:-0.03em">
+      LMN
+    </a>
+    <div class="hidden md:flex items-center gap-4 lg:gap-6">
+      <a href="{{ url_for('public.index') }}" class="nav-link {% if request.endpoint == 'public.index' %}active{% endif %}">Home</a>
+      <a href="{{ url_for('public.projects') }}" class="nav-link {% if request.endpoint in ['public.projects','public.project_detail'] %}active{% endif %}">Projects</a>
+      <a href="{{ url_for('public.work') }}" class="nav-link {% if request.endpoint == 'public.work' %}active{% endif %}">Work</a>
+      <a href="{{ url_for('public.about') }}" class="nav-link {% if request.endpoint == 'public.about' %}active{% endif %}">About</a>
+      <a href="{{ url_for('public.contact') }}" class="nav-link {% if request.endpoint == 'public.contact' %}active{% endif %}">Contact</a>
+      {% if session.user %}
+      <a href="{{ url_for('admin.dashboard') }}" class="btn-primary px-4 lg:px-5 py-2 text-sm">Dashboard</a>
+      {% else %}
+      <a href="{{ url_for('public.contact') }}" class="btn-primary px-4 lg:px-5 py-2 text-sm whitespace-nowrap">Get In Touch</a>
+      {% endif %}
+    </div>
+    <button id="mob-btn" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors" aria-label="Open menu">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mob-menu" role="dialog" aria-modal="true">
+  <div class="mob-brand" style="letter-spacing:-0.03em">LMN</div>
+  <button id="mob-close" aria-label="Close menu">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <a href="{{ url_for('public.index') }}" class="mob-link" onclick="closeMob()">Home</a>
+  <a href="{{ url_for('public.projects') }}" class="mob-link" onclick="closeMob()">Projects</a>
+  <a href="{{ url_for('public.work') }}" class="mob-link" onclick="closeMob()">Work</a>
+  <a href="{{ url_for('public.about') }}" class="mob-link" onclick="closeMob()">About</a>
+  <a href="{{ url_for('public.contact') }}" class="mob-link" onclick="closeMob()">Contact</a>
+  <a href="{{ url_for('public.contact') }}" class="btn-primary px-8 py-3 mt-2 text-center w-full max-w-xs" onclick="closeMob()">Get In Touch</a>
+</div>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="fixed top-20 left-0 right-0 z-40 max-w-6xl mx-auto px-4 sm:px-6 space-y-2" style="margin-top:2rem">
+    {% for category, message in messages %}
+    <div class="flash-{{ category }} rounded-xl px-5 py-3 flex items-center justify-between text-sm font-medium">
+      <span>{{ message }}</span>
+      <button onclick="this.parentElement.remove()" class="ml-4 opacity-60 hover:opacity-100 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<!-- MAIN CONTENT -->
+<main style="padding-top: 80px">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+<footer class="px-4 sm:px-6 pb-8 sm:pb-10">
+  <div class="max-w-6xl mx-auto divider pt-8 sm:pt-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-10">
+      <div class="col-span-2 md:col-span-1">
+        <div class="font-extrabold text-sm sm:text-base mb-2 sm:mb-3" style="letter-spacing:-0.03em">LMN</div>
+        <p class="text-xs muted leading-relaxed max-w-[180px]">Levi Mukuha Nzau — Developer, builder, problem solver.</p>
+      </div>
+      <div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Work</div>
+        <div class="space-y-2.5 sm:space-y-3 text-sm muted">
+          <a href="{{ url_for('public.projects') }}" class="block hover:text-white transition-colors">Projects</a>
+          <a href="{{ url_for('public.work') }}" class="block hover:text-white transition-colors">Experience</a>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Company</div>
+        <div class="space-y-2.5 sm:space-y-3 text-sm muted">
+          <a href="{{ url_for('public.about') }}" class="block hover:text-white transition-colors">About</a>
+          <a href="{{ url_for('public.contact') }}" class="block hover:text-white transition-colors">Contact</a>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Connect</div>
+        <div class="space-y-2.5 sm:space-y-3 text-sm muted">
+          <a href="#" class="block hover:text-white transition-colors">GitHub</a>
+          <a href="#" class="block hover:text-white transition-colors">LinkedIn</a>
+          <a href="#" class="block hover:text-white transition-colors">Twitter</a>
+        </div>
+      </div>
+    </div>
+    <div class="divider pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div class="text-xs muted">&copy; {{ current_year }} Levi Mukuha Nzau. All rights reserved.</div>
+      <div class="flex items-center gap-2">
+        <div class="live-dot"><span style="width:5px;height:5px"></span></div>
+        <span class="text-xs muted">All systems operational</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu
+  const mob = document.getElementById('mob-menu');
+  document.getElementById('mob-btn').addEventListener('click', function() {
+    mob.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+  function closeMob() {
+    mob.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('mob-close').addEventListener('click', closeMob);
+  mob.addEventListener('click', function(e) { if (e.target === mob) closeMob(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeMob(); });
+
+  // Reveal on scroll
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('on'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+  setTimeout(function() {
+    document.querySelectorAll('section:first-of-type .reveal').forEach(function(el) { el.classList.add('on'); });
+  }, 80);
+</script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

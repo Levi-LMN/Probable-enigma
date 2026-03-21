@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LMN Technologies Group</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #080808; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
+  section, nav, footer { position: relative; z-index: 1; }
+
+  /* NAV */
+  nav { background: rgba(8,8,8,0.85); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .nav-link { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 400; transition: color 0.2s; position: relative; padding-bottom: 2px; }
+  .nav-link:hover { color: #fff; }
+  .nav-link.active { color: #22c55e; }
+  .nav-link.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #22c55e; border-radius: 2px; }
+
+  /* BREADCRUMB */
+  #breadcrumb-bar {
+    height: 32px;
+    background: rgba(34,197,94,0.06);
+    border-bottom: 1px solid rgba(34,197,94,0.12);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    transition: opacity 0.3s;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  #breadcrumb-bar .bc-sep { color: rgba(34,197,94,0.4); }
+  #breadcrumb-bar .bc-current { color: #22c55e; }
+
+  /* HERO */
+  .hero-title { font-size: clamp(3.5rem, 15vw, 13rem); font-weight: 800; line-height: 0.9; letter-spacing: -0.04em; }
+  .text-green-glow { color: #22c55e; text-shadow: 0 0 40px rgba(34,197,94,0.3); }
+
+  /* CARDS */
+  .card { background: #111; border: 1px solid rgba(255,255,255,0.07); border-radius: 24px; transition: border-color 0.3s, background 0.3s; }
+  .card:hover { border-color: rgba(34,197,94,0.3); background: #141414; }
+  .card-green { border-color: rgba(34,197,94,0.2); }
+  .card-green:hover { border-color: rgba(34,197,94,0.5); box-shadow: 0 0 0 1px rgba(34,197,94,0.1); }
+  .icon-wrap { width: 48px; height: 48px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+
+  /* MISC */
+  .tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #22c55e; border-radius: 100px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; padding: 4px 12px; }
+  .tag .dot { width: 5px; height: 5px; background: #22c55e; border-radius: 50%; }
+  .btn-primary { background: #22c55e; color: #000; font-weight: 600; font-size: 0.875rem; border-radius: 100px; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; }
+  .btn-primary:hover { background: #4ade80; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(34,197,94,0.25); }
+  .btn-outline { border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-weight: 500; font-size: 0.875rem; border-radius: 100px; transition: border-color 0.2s, color 0.2s, background 0.2s; }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.3); color: #fff; background: rgba(255,255,255,0.04); }
+  .stat-n { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+  .sec-title { font-size: clamp(1.8rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; }
+  .muted { color: rgba(255,255,255,0.45); }
+  .muted-sm { color: rgba(255,255,255,0.35); }
+  .divider { border-top: 1px solid rgba(255,255,255,0.06); }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
+  .reveal.on { opacity: 1; transform: translateY(0); }
+
+  /* TICKER */
+  .ticker-inner { display: flex; animation: tick 20s linear infinite; white-space: nowrap; }
+  @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .tick-item { padding: 0 24px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+  .tick-dot { color: #22c55e; padding: 0 4px; }
+
+  /* SECTION RULE */
+  .rule-label { display: flex; align-items: center; gap: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; }
+  .rule-label::after { content: ''; flex: 1; height: 1px; background: rgba(34,197,94,0.2); }
+  .feat { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: rgba(255,255,255,0.5); }
+  .feat::before { content: ''; width: 4px; height: 4px; background: #22c55e; border-radius: 50%; flex-shrink: 0; }
+
+  /* LIVE DOT */
+  @keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(1.8); opacity: 0; } }
+  .live-dot { position: relative; display: inline-flex; }
+  .live-dot span { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; display: block; }
+  .live-dot::before { content: ''; position: absolute; inset: 0; background: #22c55e; border-radius: 50%; animation: ping 1.6s ease-out infinite; }
+
+  /* TECH CHIP */
+  .tech-chip { font-size: 0.72rem; padding: 3px 10px; border-radius: 100px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); display: inline-block; }
+
+  /* WORK GRID - responsive */
+  .work-grid { display: grid; grid-template-columns: 220px 1fr; gap: 2.5rem; }
+  @media (max-width: 640px) { .work-grid { grid-template-columns: 1fr; gap: 0.75rem; } }
+
+  /* MOBILE MENU */
+  #mob-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 98;
+    background: #080808;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.75rem;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    padding: 80px 24px 40px;
+  }
+  #mob-menu.open { transform: translateX(0); }
+
+  /* CLOSE BUTTON */
+  #mob-close {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    z-index: 99;
+  }
+  #mob-close:hover { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); }
+  #mob-close svg { width: 18px; height: 18px; color: rgba(255,255,255,0.7); transition: color 0.2s; }
+  #mob-close:hover svg { color: #22c55e; }
+
+  .mob-link {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,0.6);
+    transition: color 0.2s;
+    position: relative;
+    padding: 4px 0;
+  }
+  .mob-link:hover, .mob-link.active { color: #fff; }
+  .mob-link.active::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%; height: 2px;
+    background: #22c55e;
+    border-radius: 2px;
+  }
+  .mob-brand {
+    position: absolute;
+    top: 22px;
+    left: 24px;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    .hero-title { font-size: clamp(3rem, 18vw, 6rem); }
+    .sec-title { font-size: clamp(1.6rem, 8vw, 2.5rem); }
+    .card { border-radius: 18px; }
+    .stat-n { font-size: 1.8rem; }
+  }
+
+  /* Stats grid responsive */
+  @media (max-width: 640px) {
+    .stats-bar-grid { grid-template-columns: 1fr 1fr; }
+    .stats-bar-grid > div { border-right: none !important; border-top: none !important; }
+    .stats-bar-grid > div:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.06) !important; }
+    .stats-bar-grid > div:nth-child(3),
+    .stats-bar-grid > div:nth-child(4) { border-top: 1px solid rgba(255,255,255,0.06) !important; }
+  }
+
+  /* Projects grid responsive */
+  @media (max-width: 768px) {
+    .projects-grid { grid-template-columns: 1fr !important; }
+  }
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .projects-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+
+  /* Portfolio grid */
+  @media (max-width: 768px) {
+    .portfolio-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* Section padding responsive */
+  @media (max-width: 480px) {
+    .section-py { padding-top: 3rem; padding-bottom: 3rem; }
+    .card-inner-p { padding: 1.5rem !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="fixed top-0 w-full z-50">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16">
+    <a href="#home" class="font-extrabold text-sm sm:text-base tracking-tight shrink-0">LMN <span class="font-light muted text-xs sm:text-sm">Technologies</span></a>
+    <div class="hidden md:flex items-center gap-4 lg:gap-6">
+      <a href="#about" class="nav-link" data-section="about">About</a>
+      <a href="#portfolio" class="nav-link" data-section="portfolio">Portfolio</a>
+      <a href="#projects" class="nav-link" data-section="projects">Projects</a>
+      <a href="#work-history" class="nav-link" data-section="work-history">Work History</a>
+      <a href="#experiences" class="nav-link" data-section="experiences">Experiences</a>
+      <a href="#contact" class="nav-link" data-section="contact">Contact</a>
+      <a href="#contact" class="btn-primary px-4 lg:px-5 py-2 text-sm whitespace-nowrap">Get Started</a>
+    </div>
+    <button id="mob-btn" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors" aria-label="Open menu">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- BREADCRUMB BAR -->
+  <div id="breadcrumb-bar">
+    <span>LMN Technologies</span>
+    <span class="bc-sep">›</span>
+    <span class="bc-current" id="bc-current">Home</span>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mob-menu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <!-- Brand -->
+  <div class="mob-brand">LMN <span class="font-light" style="color:rgba(255,255,255,0.4);font-size:0.8rem">Technologies</span></div>
+
+  <!-- Close Button -->
+  <button id="mob-close" aria-label="Close menu">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <a href="#about" class="mob-link" data-section="about" onclick="closeMob()">About</a>
+  <a href="#portfolio" class="mob-link" data-section="portfolio" onclick="closeMob()">Portfolio</a>
+  <a href="#projects" class="mob-link" data-section="projects" onclick="closeMob()">Projects</a>
+  <a href="#work-history" class="mob-link" data-section="work-history" onclick="closeMob()">Work History</a>
+  <a href="#experiences" class="mob-link" data-section="experiences" onclick="closeMob()">Experiences</a>
+  <a href="#contact" class="mob-link" data-section="contact" onclick="closeMob()">Contact</a>
+  <a href="#contact" class="btn-primary px-8 py-3 mt-2 text-center w-full max-w-xs" onclick="closeMob()">Get Started</a>
+</div>
+
+<!-- HERO -->
+<section id="home" class="min-h-screen flex flex-col justify-between" style="padding-top:80px">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full pt-8 sm:pt-10 pb-6 flex-1 flex flex-col justify-center">
+    <div class="mb-5 sm:mb-6 reveal">
+      <div class="tag"><span class="dot"></span> <span id="rotating-tag">Frontier AI Group · Est. 2019</span></div>
+    </div>
+    <h1 class="hero-title mb-5 sm:mb-6 reveal" style="transition-delay:0.08s">
+      Engineer<br>the <span class="text-green-glow">future.</span>
+    </h1>
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-8 reveal" style="transition-delay:0.16s">
+      <p class="text-sm sm:text-base md:text-lg muted font-light leading-relaxed max-w-md">
+        We build intelligent ventures at the intersection of AI, cybersecurity, and urban infrastructure.
+      </p>
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="#portfolio" class="btn-primary px-5 sm:px-7 py-2.5 sm:py-3 text-sm">Explore Work</a>
+        <a href="#contact" class="btn-outline px-5 sm:px-7 py-2.5 sm:py-3 text-sm">Contact Us</a>
+      </div>
+    </div>
+    <div class="mt-8 sm:mt-10 pt-6 sm:pt-8 divider grid grid-cols-3 gap-3 sm:gap-8 reveal" style="transition-delay:0.22s">
+      <div>
+        <div class="stat-n">50+</div>
+        <div class="text-xs muted-sm mt-1.5 font-medium">Patents filed</div>
+      </div>
+      <div>
+        <div class="stat-n">500+</div>
+        <div class="text-xs muted-sm mt-1.5 font-medium">Global clients</div>
+      </div>
+      <div>
+        <div class="stat-n">99.9%</div>
+        <div class="text-xs muted-sm mt-1.5 font-medium">Uptime SLA</div>
+      </div>
+    </div>
+  </div>
+  <div class="divider py-3 sm:py-3.5 overflow-hidden">
+    <div class="ticker-inner">
+      <span class="tick-item">AI Cybersecurity</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Urban Intelligence</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Machine Learning</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Quantum Research</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Digital Transformation</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Autonomous Systems</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">AI Cybersecurity</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Urban Intelligence</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Machine Learning</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Quantum Research</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Digital Transformation</span><span class="tick-dot">&#9670;</span>
+      <span class="tick-item">Autonomous Systems</span><span class="tick-dot">&#9670;</span>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section-py py-14 sm:py-16 md:py-24 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid lg:grid-cols-2 gap-10 sm:gap-16 lg:gap-28 items-center">
+      <div class="reveal">
+        <div class="rule-label mb-6 sm:mb-8">About us</div>
+        <h2 class="sec-title mb-4 sm:mb-6">We build what<br>comes next.</h2>
+        <p class="muted leading-relaxed mb-8 sm:mb-10 text-sm sm:text-base">
+          LMN Technologies is a deep tech venture group creating intelligent solutions that reshape industries. We operate at the frontier of AI, working across cybersecurity, mobility, and infrastructure.
+        </p>
+        <a href="#portfolio" class="btn-primary px-6 sm:px-7 py-2.5 sm:py-3 inline-block text-sm">Our Ventures</a>
+      </div>
+      <div class="space-y-3 sm:space-y-4 reveal" style="transition-delay:0.12s">
+        <div class="card p-5 sm:p-7 card-inner-p">
+          <div class="flex items-start gap-4 sm:gap-5">
+            <div class="icon-wrap shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="#22c55e" viewBox="0 0 24 24" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm sm:text-base mb-1.5">Innovation</h3>
+              <p class="text-xs sm:text-sm muted leading-relaxed">Pioneering technologies that redefine digital transformation across every vertical we touch.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card p-5 sm:p-7 card-inner-p">
+          <div class="flex items-start gap-4 sm:gap-5">
+            <div class="icon-wrap shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="#22c55e" viewBox="0 0 24 24" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm sm:text-base mb-1.5">Excellence</h3>
+              <p class="text-xs sm:text-sm muted leading-relaxed">Delivering quality through meticulous engineering and obsessive attention to detail at every layer.</p>
+            </div>
+          </div>
+        </div>
+        <div class="card p-5 sm:p-7 card-inner-p">
+          <div class="flex items-start gap-4 sm:gap-5">
+            <div class="icon-wrap shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="#22c55e" viewBox="0 0 24 24" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm sm:text-base mb-1.5">Global Impact</h3>
+              <p class="text-xs sm:text-sm muted leading-relaxed">Creating scalable, long-lasting solutions that transform industries and communities worldwide.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio" class="section-py py-14 sm:py-16 md:py-24 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="mb-8 sm:mb-10 reveal">
+      <div class="rule-label mb-4 sm:mb-6">Portfolio</div>
+      <h2 class="sec-title">Our ventures</h2>
+    </div>
+    <div class="portfolio-grid grid md:grid-cols-2 gap-4 sm:gap-6 reveal" style="transition-delay:0.1s">
+      <div class="card card-green p-6 sm:p-9 flex flex-col group">
+        <div class="flex items-start justify-between mb-6 sm:mb-8">
+          <div class="icon-wrap" style="width:50px;height:50px;border-radius:16px">
+            <svg class="w-5 sm:w-6 h-5 sm:h-6" fill="none" stroke="#22c55e" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <span class="tag">AI Security</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-extrabold mb-2 sm:mb-3 tracking-tight">CyphicAI</h3>
+        <p class="muted text-xs sm:text-sm leading-relaxed mb-5 sm:mb-7 flex-1">Next-generation AI cybersecurity platform leveraging machine learning to detect and neutralize digital threats in real-time, at scale.</p>
+        <div class="space-y-2 sm:space-y-2.5 mb-6 sm:mb-8">
+          <div class="feat">Quantum-enhanced threat detection</div>
+          <div class="feat">AI-powered behavioral analysis</div>
+          <div class="feat">Autonomous incident response</div>
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 text-sm font-semibold text-green-500 group-hover:gap-3 transition-all">Learn more <span>&#8594;</span></a>
+      </div>
+      <div class="card card-green p-6 sm:p-9 flex flex-col group">
+        <div class="flex items-start justify-between mb-6 sm:mb-8">
+          <div class="icon-wrap" style="width:50px;height:50px;border-radius:16px">
+            <svg class="w-5 sm:w-6 h-5 sm:h-6" fill="none" stroke="#22c55e" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+            </svg>
+          </div>
+          <span class="tag">Urban Tech</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-extrabold mb-2 sm:mb-3 tracking-tight">MobilityX</h3>
+        <p class="muted text-xs sm:text-sm leading-relaxed mb-5 sm:mb-7 flex-1">Urban intelligence platform transforming city mobility through predictive analytics and real-time route optimization for smart cities.</p>
+        <div class="space-y-2 sm:space-y-2.5 mb-6 sm:mb-8">
+          <div class="feat">Predictive traffic analytics</div>
+          <div class="feat">Dynamic route optimization</div>
+          <div class="feat">Smart city infrastructure</div>
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 text-sm font-semibold text-green-500 group-hover:gap-3 transition-all">Learn more <span>&#8594;</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<section class="px-4 sm:px-6 mb-10 sm:mb-12 reveal">
+  <div class="max-w-6xl mx-auto card p-0 overflow-hidden">
+    <div class="stats-bar-grid grid grid-cols-2 md:grid-cols-4">
+      <div class="px-5 sm:px-8 py-7 sm:py-10 text-center" style="border-right:1px solid rgba(255,255,255,0.06)">
+        <div class="stat-n" style="color:#4ade80">50+</div>
+        <div class="text-xs muted-sm mt-2 font-medium uppercase tracking-wider">Patents</div>
+      </div>
+      <div class="px-5 sm:px-8 py-7 sm:py-10 text-center">
+        <div class="stat-n" style="color:#4ade80">500+</div>
+        <div class="text-xs muted-sm mt-2 font-medium uppercase tracking-wider">Clients</div>
+      </div>
+      <div class="px-5 sm:px-8 py-7 sm:py-10 text-center" style="border-top:1px solid rgba(255,255,255,0.06);border-right:1px solid rgba(255,255,255,0.06)">
+        <div class="stat-n" style="color:#4ade80">24/7</div>
+        <div class="text-xs muted-sm mt-2 font-medium uppercase tracking-wider">Support</div>
+      </div>
+      <div class="px-5 sm:px-8 py-7 sm:py-10 text-center" style="border-top:1px solid rgba(255,255,255,0.06)">
+        <div class="stat-n" style="color:#4ade80">99.9%</div>
+        <div class="text-xs muted-sm mt-2 font-medium uppercase tracking-wider">Uptime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects" class="section-py py-14 sm:py-16 md:py-24 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 reveal">
+      <div>
+        <div class="rule-label mb-4 sm:mb-6">Work</div>
+        <h2 class="sec-title">Projects we've<br>delivered.</h2>
+      </div>
+      <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold shrink-0" style="color:#22c55e">View all <span>&#8594;</span></a>
+    </div>
+    <div class="projects-grid grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 reveal" style="transition-delay:0.1s">
+
+      <div class="card p-5 sm:p-7 flex flex-col group">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <span class="tag">Finance</span>
+          <span class="text-xs muted-sm">2024</span>
+        </div>
+        <h3 class="font-extrabold text-base sm:text-lg mb-2 sm:mb-3 tracking-tight leading-tight">NexaBank Fraud Detection Engine</h3>
+        <p class="text-xs sm:text-sm muted leading-relaxed flex-1 mb-4 sm:mb-6">Built a real-time ML pipeline for a top-10 European bank, reducing fraudulent transactions by 94% while cutting false positives in half.</p>
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
+          <span class="tech-chip">Python</span><span class="tech-chip">TensorFlow</span><span class="tech-chip">Kafka</span>
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold group-hover:gap-3 transition-all" style="color:#22c55e">Case study <span>&#8594;</span></a>
+      </div>
+
+      <div class="card p-5 sm:p-7 flex flex-col group">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <span class="tag">Gov Tech</span>
+          <span class="text-xs muted-sm">2024</span>
+        </div>
+        <h3 class="font-extrabold text-base sm:text-lg mb-2 sm:mb-3 tracking-tight leading-tight">Singapore Smart Grid Optimizer</h3>
+        <p class="text-xs sm:text-sm muted leading-relaxed flex-1 mb-4 sm:mb-6">Deployed an AI-driven energy distribution system for Singapore's national grid, achieving 31% efficiency gains with zero downtime during rollout.</p>
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
+          <span class="tech-chip">IoT</span><span class="tech-chip">Edge AI</span><span class="tech-chip">AWS</span>
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold group-hover:gap-3 transition-all" style="color:#22c55e">Case study <span>&#8594;</span></a>
+      </div>
+
+      <div class="card p-5 sm:p-7 flex flex-col group">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <span class="tag">Healthcare</span>
+          <span class="text-xs muted-sm">2023</span>
+        </div>
+        <h3 class="font-extrabold text-base sm:text-lg mb-2 sm:mb-3 tracking-tight leading-tight">MedVision Diagnostic AI</h3>
+        <p class="text-xs sm:text-sm muted leading-relaxed flex-1 mb-4 sm:mb-6">Computer vision system for early-stage cancer detection across 12 hospitals, improving diagnostic accuracy to 97.3%.</p>
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
+          <span class="tech-chip">PyTorch</span><span class="tech-chip">DICOM</span><span class="tech-chip">GCP</span>
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold group-hover:gap-3 transition-all" style="color:#22c55e">Case study <span>&#8594;</span></a>
+      </div>
+
+      <div class="card p-5 sm:p-7 flex flex-col group">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <span class="tag">Logistics</span>
+          <span class="text-xs muted-sm">2023</span>
+        </div>
+        <h3 class="font-extrabold text-base sm:text-lg mb-2 sm:mb-3 tracking-tight leading-tight">FleetAI Route Intelligence</h3>
+        <p class="text-xs sm:text-sm muted leading-relaxed flex-1 mb-4 sm:mb-6">End-to-end fleet optimization for a 10,000-vehicle network across Southeast Asia, slashing fuel costs by 22%.</p>
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
+          <span class="tech-chip">Reinforcement RL</span><span class="tech-chip">GPS API</span>
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold group-hover:gap-3 transition-all" style="color:#22c55e">Case study <span>&#8594;</span></a>
+      </div>
+
+      <div class="card p-5 sm:p-7 flex flex-col group">
+        <div class="flex items-center justify-between mb-4 sm:mb-6">
+          <span class="tag">Retail</span>
+          <span class="text-xs muted-sm">2022</span>
+        </div>
+        <h3 class="font-extrabold text-base sm:text-lg mb-2 sm:mb-3 tracking-tight leading-tight">HyperPersonalize Commerce Engine</h3>
+        <p class="text-xs sm:text-sm muted leading-relaxed flex-1 mb-4 sm:mb-6">AI recommendation engine for a global platform with 80M users, increasing average order value by 38%.</p>
+        <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-6">
+          <span class="tech-chip">RecSys</span><span class="tech-chip">Spark</span><span class="tech-chip">Redis</span>
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold group-hover:gap-3 transition-all" style="color:#22c55e">Case study <span>&#8594;</span></a>
+      </div>
+
+      <div class="card card-green p-5 sm:p-7 flex flex-col items-start justify-between" style="background:rgba(34,197,94,0.04)">
+        <div class="icon-wrap mb-4 sm:mb-6">
+          <svg class="w-5 h-5" fill="none" stroke="#22c55e" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-extrabold text-base sm:text-lg mb-2 sm:mb-3 tracking-tight">Start your project</h3>
+          <p class="text-xs sm:text-sm muted leading-relaxed mb-4 sm:mb-6">Have a challenge worth solving? We'd love to be your technical partner.</p>
+          <a href="#contact" class="btn-primary px-5 sm:px-6 py-2 sm:py-2.5 inline-block text-sm">Talk to us</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WORK HISTORY -->
+<section id="work-history" class="section-py py-14 sm:py-16 md:py-24 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 mb-10 sm:mb-14 reveal">
+      <div>
+        <div class="rule-label mb-4 sm:mb-6">Background</div>
+        <h2 class="sec-title">Work history.</h2>
+      </div>
+      <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold shrink-0" style="color:#22c55e">Full resume <span>&#8594;</span></a>
+    </div>
+
+    <div class="space-y-3 sm:space-y-4 reveal" style="transition-delay:0.1s">
+
+      <div class="card p-5 sm:p-8 md:p-10">
+        <div class="work-grid">
+          <div>
+            <div class="tag mb-3">Current</div>
+            <h3 class="font-extrabold text-base sm:text-lg tracking-tight mb-1">Safaricom PLC</h3>
+            <p class="text-xs muted-sm mb-2">Nairobi, Kenya</p>
+            <p class="text-xs font-medium" style="color:rgba(255,255,255,0.35)">Jan 2023 &mdash; Present</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm sm:text-base mb-2 sm:mb-3">Senior AI Engineer</h4>
+            <p class="text-xs sm:text-sm muted leading-relaxed mb-4 sm:mb-5">Leading a team building AI-powered fraud detection and customer experience tools across Safaricom's M-PESA and data platforms. Architected a real-time anomaly detection pipeline processing over 5M daily transactions, reducing fraud losses by 41%.</p>
+            <div class="flex flex-wrap gap-1.5 sm:gap-2">
+              <span class="tech-chip">Python</span><span class="tech-chip">Kafka</span><span class="tech-chip">TensorFlow</span><span class="tech-chip">GCP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 sm:p-8 md:p-10">
+        <div class="work-grid">
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg tracking-tight mb-1">Andela Kenya</h3>
+            <p class="text-xs muted-sm mb-2">Nairobi, Kenya</p>
+            <p class="text-xs font-medium" style="color:rgba(255,255,255,0.35)">Mar 2021 &mdash; Dec 2022</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm sm:text-base mb-2 sm:mb-3">Full-Stack Engineer</h4>
+            <p class="text-xs sm:text-sm muted leading-relaxed mb-4 sm:mb-5">Worked with distributed teams building scalable SaaS products for international clients. Delivered a logistics management platform used across 6 African markets and contributed to internal tooling that cut developer onboarding time by 60%.</p>
+            <div class="flex flex-wrap gap-1.5 sm:gap-2">
+              <span class="tech-chip">React</span><span class="tech-chip">Node.js</span><span class="tech-chip">PostgreSQL</span><span class="tech-chip">AWS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 sm:p-8 md:p-10">
+        <div class="work-grid">
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg tracking-tight mb-1">Cellulant Corporation</h3>
+            <p class="text-xs muted-sm mb-2">Nairobi, Kenya</p>
+            <p class="text-xs font-medium" style="color:rgba(255,255,255,0.35)">Jun 2019 &mdash; Feb 2021</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm sm:text-base mb-2 sm:mb-3">Software Engineer &mdash; Payments</h4>
+            <p class="text-xs sm:text-sm muted leading-relaxed mb-4 sm:mb-5">Developed and maintained payment gateway integrations across 18 African countries. Owned core API infrastructure handling mobile money, card, and bank transfer flows, improving uptime from 97.1% to 99.6%.</p>
+            <div class="flex flex-wrap gap-1.5 sm:gap-2">
+              <span class="tech-chip">PHP</span><span class="tech-chip">Laravel</span><span class="tech-chip">MySQL</span><span class="tech-chip">REST APIs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 sm:p-8 md:p-10">
+        <div class="work-grid">
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg tracking-tight mb-1">iHub Nairobi</h3>
+            <p class="text-xs muted-sm mb-2">Nairobi, Kenya</p>
+            <p class="text-xs font-medium" style="color:rgba(255,255,255,0.35)">Sep 2018 &mdash; May 2019</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm sm:text-base mb-2 sm:mb-3">Junior Developer &mdash; Resident Programme</h4>
+            <p class="text-xs sm:text-sm muted leading-relaxed mb-4 sm:mb-5">Part of the iHub resident startup programme, prototyping civic tech tools for Nairobi County. Built a public transport data aggregator mapping informal matatu routes, later adopted by the county transport authority.</p>
+            <div class="flex flex-wrap gap-1.5 sm:gap-2">
+              <span class="tech-chip">JavaScript</span><span class="tech-chip">OpenStreetMap</span><span class="tech-chip">Django</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCES / TESTIMONIALS -->
+<section id="experiences" class="section-py py-14 sm:py-16 md:py-24 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12 reveal">
+      <div>
+        <div class="rule-label mb-4 sm:mb-6">Testimonials</div>
+        <h2 class="sec-title">What our clients<br>say about us.</h2>
+      </div>
+      <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold shrink-0" style="color:#22c55e">View all <span>&#8594;</span></a>
+    </div>
+
+    <div class="card card-green p-7 sm:p-10 md:p-14 mb-4 sm:mb-6 reveal" style="background:rgba(34,197,94,0.03)">
+      <svg class="w-7 sm:w-8 h-7 sm:h-8 mb-6 sm:mb-8" fill="#22c55e" viewBox="0 0 24 24">
+        <path d="M14.017 21v-7.391c0-5.704 3.748-9.57 8.983-10.609l.995 2.151c-2.51.88-3.994 3.057-3.994 5.849h3.999V21h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 8.983-10.609l.995 2.151c-2.51.88-3.994 3.057-3.994 5.849h3.999V21H0z"/>
+      </svg>
+      <p class="text-base sm:text-lg md:text-2xl font-light leading-relaxed mb-6 sm:mb-8 max-w-3xl" style="color:rgba(255,255,255,0.8)">
+        "LMN Technologies didn't just deliver a product — they fundamentally changed how we think about security at scale. The CyphicAI integration cut our threat response time from hours to milliseconds."
+      </p>
+      <div class="flex items-center gap-3 sm:gap-4 flex-wrap">
+        <div class="w-10 sm:w-11 h-10 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm shrink-0" style="background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">JM</div>
+        <div>
+          <div class="font-semibold text-sm">James Muller</div>
+          <div class="text-xs muted-sm">CTO, NexaBank Europe</div>
+        </div>
+        <div class="sm:ml-auto" style="color:#4ade80">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 reveal" style="transition-delay:0.1s">
+
+      <div class="card p-5 sm:p-7 flex flex-col">
+        <div class="mb-4 sm:mb-5" style="color:#4ade80">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 flex-1" style="color:rgba(255,255,255,0.6)">
+          "The MobilityX deployment reduced peak-hour congestion by 27% in our downtown corridor within three months. Remarkable engineering."
+        </p>
+        <div class="flex items-center gap-3 mt-auto">
+          <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style="background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">AL</div>
+          <div>
+            <div class="font-semibold text-xs sm:text-sm">Amara Lim</div>
+            <div class="text-xs muted-sm">Director, Urban Planning SG</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 sm:p-7 flex flex-col">
+        <div class="mb-4 sm:mb-5" style="color:#4ade80">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 flex-1" style="color:rgba(255,255,255,0.6)">
+          "Our diagnostic accuracy jumped to levels we didn't think were achievable. The team's depth of knowledge in both AI and clinical workflow is unmatched."
+        </p>
+        <div class="flex items-center gap-3 mt-auto">
+          <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style="background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">RO</div>
+          <div>
+            <div class="font-semibold text-xs sm:text-sm">Dr. Rachel Osei</div>
+            <div class="text-xs muted-sm">Chief Radiologist, MedVision</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-5 sm:p-7 flex flex-col sm:col-span-2 lg:col-span-1">
+        <div class="mb-4 sm:mb-5" style="color:#4ade80">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="text-xs sm:text-sm leading-relaxed mb-5 sm:mb-6 flex-1" style="color:rgba(255,255,255,0.6)">
+          "Working with LMN felt like having a world-class R&amp;D team embedded inside our company. Delivery was fast, communication was clear, results were exceptional."
+        </p>
+        <div class="flex items-center gap-3 mt-auto">
+          <div class="w-8 sm:w-9 h-8 sm:h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style="background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2)">TK</div>
+          <div>
+            <div class="font-semibold text-xs sm:text-sm">Thomas Kariuki</div>
+            <div class="text-xs muted-sm">VP Engineering, FleetAI</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section-py py-14 sm:py-16 md:py-24 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="card p-8 sm:p-12 md:p-20 text-center reveal" style="border-color:rgba(34,197,94,0.15)">
+      <div class="flex justify-center mb-6 sm:mb-8">
+        <div class="live-dot"><span></span></div>
+      </div>
+      <h2 class="sec-title mb-4 sm:mb-5">Let's build<br>the future together.</h2>
+      <p class="muted text-sm sm:text-base md:text-lg mb-8 sm:mb-10 max-w-lg mx-auto leading-relaxed">
+        Ready to transform your vision into an AI-first reality? We'd love to hear from you.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="/cdn-cgi/l/email-protection#771f121b1b18371b1a190312141f19181b18101e12045914181a" class="btn-primary px-7 sm:px-9 py-3 sm:py-3.5 text-sm">Get Started</a>
+        <a href="#" class="btn-outline px-7 sm:px-9 py-3 sm:py-3.5 text-sm">Schedule a Demo</a>
+      </div>
+      <div class="mt-10 sm:mt-14 pt-8 sm:pt-10 divider grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 text-xs sm:text-sm">
+        <div>
+          <div class="muted-sm text-xs uppercase tracking-wider mb-1.5">Email</div>
+          <div class="font-medium break-all"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="640c0108080b2408090a1001070c0a0b080b030d01174a070b09">[email&#160;protected]</a></div>
+        </div>
+        <div>
+          <div class="muted-sm text-xs uppercase tracking-wider mb-1.5">Location</div>
+          <div class="font-medium muted">Nairobi, Kenya</div>
+        </div>
+        <div>
+          <div class="muted-sm text-xs uppercase tracking-wider mb-1.5">Response</div>
+          <div class="font-medium muted">Within 24 hours</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="px-4 sm:px-6 pb-8 sm:pb-10">
+  <div class="max-w-6xl mx-auto divider pt-8 sm:pt-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-10">
+      <div class="col-span-2 md:col-span-1">
+        <div class="font-extrabold text-sm sm:text-base mb-2 sm:mb-3">LMN <span class="font-light muted">Technologies</span></div>
+        <p class="text-xs muted leading-relaxed max-w-[160px]">Pioneering AI and digital transformation since 2019.</p>
+      </div>
+      <div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Portfolio</div>
+        <div class="space-y-2.5 sm:space-y-3 text-sm muted">
+          <a href="#" class="block hover:text-white transition-colors">CyphicAI</a>
+          <a href="#" class="block hover:text-white transition-colors">MobilityX</a>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Company</div>
+        <div class="space-y-2.5 sm:space-y-3 text-sm muted">
+          <a href="#about" class="block hover:text-white transition-colors">About</a>
+          <a href="#projects" class="block hover:text-white transition-colors">Projects</a>
+          <a href="#work-history" class="block hover:text-white transition-colors">Work History</a>
+          <a href="#experiences" class="block hover:text-white transition-colors">Experiences</a>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-bold mb-4 sm:mb-5 uppercase tracking-wider" style="color:#22c55e">Connect</div>
+        <div class="space-y-2.5 sm:space-y-3 text-sm muted">
+          <a href="#" class="block hover:text-white transition-colors">LinkedIn</a>
+          <a href="#" class="block hover:text-white transition-colors">Twitter</a>
+          <a href="#contact" class="block hover:text-white transition-colors">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="divider pt-6 sm:pt-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div class="text-xs muted">&#169; 2025 LMN Technologies Group. All rights reserved.</div>
+      <div class="flex items-center gap-2">
+        <div class="live-dot"><span style="width:5px;height:5px"></span></div>
+        <span class="text-xs muted">All systems operational</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── Rotating tag phrases ────────────────────────────────────────
+const tagPhrases = [
+  { text: 'Frontier AI Group · Est. 2019',     anim: 'typewriter' },
+  { text: 'Building Intelligent Futures',       anim: 'slide-up' },
+  { text: '50+ Patents · 500+ Clients',         anim: 'flip' },
+  { text: 'Nairobi → Singapore → The World',   anim: 'glitch' },
+  { text: 'AI · Cybersecurity · Urban Tech',   anim: 'fade-blur' },
+  { text: 'Deep Tech. Real Impact.',            anim: 'bounce-in' },
+];
+
+const tagEl = document.getElementById('rotating-tag');
+let tagIndex = 0;
+
+// Inject keyframes
+const tagStyle = document.createElement('style');
+tagStyle.textContent = `
+  @keyframes tag-typewriter {
+    from { width: 0; opacity: 1; }
+    to   { width: 100%; opacity: 1; }
+  }
+  @keyframes tag-slide-up {
+    from { transform: translateY(14px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  @keyframes tag-flip {
+    from { transform: rotateX(90deg); opacity: 0; }
+    to   { transform: rotateX(0deg);  opacity: 1; }
+  }
+  @keyframes tag-glitch-1 {
+    0%   { clip-path: inset(10% 0 80% 0); transform: translate(-4px, 0); }
+    20%  { clip-path: inset(60% 0 10% 0); transform: translate(4px,  0); }
+    40%  { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 0); }
+    60%  { clip-path: inset(80% 0 5%  0); transform: translate(3px,  0); }
+    80%  { clip-path: inset(5%  0 70% 0); transform: translate(-3px, 0); }
+    100% { clip-path: inset(0   0 0   0); transform: translate(0,    0); }
+  }
+  @keyframes tag-fade-blur {
+    from { filter: blur(8px); opacity: 0; transform: scale(1.08); }
+    to   { filter: blur(0);   opacity: 1; transform: scale(1);    }
+  }
+  @keyframes tag-bounce-in {
+    0%   { transform: scale(0.4);  opacity: 0; }
+    55%  { transform: scale(1.12); opacity: 1; }
+    75%  { transform: scale(0.95); }
+    90%  { transform: scale(1.04); }
+    100% { transform: scale(1);    opacity: 1; }
+  }
+  @keyframes tag-exit-down {
+    from { transform: translateY(0);    opacity: 1; }
+    to   { transform: translateY(-12px); opacity: 0; }
+  }
+  #rotating-tag {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    perspective: 400px;
+  }
+`;
+document.head.appendChild(tagStyle);
+
+function applyTagAnim(phrase) {
+  tagEl.style.animation = 'none';
+  tagEl.style.opacity   = '0';
+  tagEl.textContent     = phrase.text;
+
+  void tagEl.offsetWidth; // reflow
+
+  switch (phrase.anim) {
+    case 'typewriter':
+      tagEl.style.width = '0';
+      tagEl.style.animation = 'tag-typewriter 0.7s steps(30) forwards';
+      break;
+    case 'slide-up':
+      tagEl.style.width = 'auto';
+      tagEl.style.animation = 'tag-slide-up 0.45s cubic-bezier(0.22,1,0.36,1) forwards';
+      break;
+    case 'flip':
+      tagEl.style.width = 'auto';
+      tagEl.style.animation = 'tag-flip 0.5s cubic-bezier(0.22,1,0.36,1) forwards';
+      break;
+    case 'glitch':
+      tagEl.style.width   = 'auto';
+      tagEl.style.opacity = '1';
+      tagEl.style.animation = 'tag-glitch-1 0.55s steps(1) forwards';
+      break;
+    case 'fade-blur':
+      tagEl.style.width = 'auto';
+      tagEl.style.animation = 'tag-fade-blur 0.55s ease forwards';
+      break;
+    case 'bounce-in':
+      tagEl.style.width = 'auto';
+      tagEl.style.animation = 'tag-bounce-in 0.6s cubic-bezier(0.22,1,0.36,1) forwards';
+      break;
+  }
+}
+
+function exitThenNext() {
+  tagEl.style.animation = 'tag-exit-down 0.3s ease forwards';
+  setTimeout(function() {
+    tagIndex = (tagIndex + 1) % tagPhrases.length;
+    applyTagAnim(tagPhrases[tagIndex]);
+  }, 300);
+}
+
+// Init first phrase after reveal
+setTimeout(function() {
+  applyTagAnim(tagPhrases[0]);
+}, 200);
+
+// Cycle every 3s
+setInterval(exitThenNext, 3000);
+
+// ── Mobile menu open/close ──────────────────────────────────────
+const mob = document.getElementById('mob-menu');
+const mobBtn = document.getElementById('mob-btn');
+const mobClose = document.getElementById('mob-close');
+
+mobBtn.addEventListener('click', function() {
+  mob.classList.add('open');
+  document.body.style.overflow = 'hidden';
+});
+
+function closeMob() {
+  mob.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+mobClose.addEventListener('click', closeMob);
+
+// Close on backdrop click (outside links)
+mob.addEventListener('click', function(e) {
+  if (e.target === mob) closeMob();
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeMob();
+});
+
+// ── Smooth scroll ───────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth' });
+      closeMob();
+    }
+  });
+});
+
+// ── Active section tracking (breadcrumb + nav highlight) ────────
+const sections = [
+  { id: 'home',         label: 'Home' },
+  { id: 'about',        label: 'About' },
+  { id: 'portfolio',    label: 'Portfolio' },
+  { id: 'projects',     label: 'Projects' },
+  { id: 'work-history', label: 'Work History' },
+  { id: 'experiences',  label: 'Experiences' },
+  { id: 'contact',      label: 'Contact' },
+];
+
+const bcCurrent  = document.getElementById('bc-current');
+const navLinks   = document.querySelectorAll('.nav-link[data-section]');
+const mobLinks   = document.querySelectorAll('.mob-link[data-section]');
+
+function setActive(sectionId) {
+  // breadcrumb
+  const s = sections.find(s => s.id === sectionId);
+  if (s) bcCurrent.textContent = s.label;
+
+  // desktop nav
+  navLinks.forEach(function(l) {
+    l.classList.toggle('active', l.dataset.section === sectionId);
+  });
+
+  // mobile nav
+  mobLinks.forEach(function(l) {
+    l.classList.toggle('active', l.dataset.section === sectionId);
+  });
+}
+
+// IntersectionObserver for section tracking
+const sectionEls = sections
+  .map(s => document.getElementById(s.id))
+  .filter(Boolean);
+
+const sectionObs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      setActive(entry.target.id);
+    }
+  });
+}, {
+  threshold: 0,
+  rootMargin: '-40% 0px -55% 0px'
+});
+
+sectionEls.forEach(function(el) { sectionObs.observe(el); });
+
+// ── Reveal on scroll ────────────────────────────────────────────
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) e.target.classList.add('on');
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+setTimeout(function() {
+  document.querySelectorAll('#home .reveal').forEach(function(el) { el.classList.add('on'); });
+}, 80);
+</script>
+</body>
+</html>

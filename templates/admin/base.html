@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin{% endblock %} — LMN</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] } } }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #060606; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
+
+    /* SIDEBAR */
+    #sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 240px; background: #0c0c0c; border-right: 1px solid rgba(255,255,255,0.06); z-index: 50; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+    #sidebar.closed { transform: translateX(-100%); }
+    #main-wrap { margin-left: 240px; min-height: 100vh; position: relative; z-index: 1; transition: margin-left 0.3s; }
+    #main-wrap.expanded { margin-left: 0; }
+    @media (max-width: 1024px) { #sidebar { transform: translateX(-100%); } #sidebar.open { transform: translateX(0); } #main-wrap { margin-left: 0; } }
+
+    .side-link { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-radius: 12px; font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.45); transition: all 0.18s; margin: 1px 8px; }
+    .side-link:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .side-link.active { color: #22c55e; background: rgba(34,197,94,0.1); }
+    .side-link .icon { width: 16px; text-align: center; flex-shrink: 0; }
+    .side-section { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.2); padding: 0 24px; margin-top: 20px; margin-bottom: 4px; }
+
+    /* TOP BAR */
+    #topbar { height: 56px; background: rgba(6,6,6,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 40; }
+
+    /* CARDS */
+    .card { background: #111; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; }
+    .card-hover { transition: border-color 0.25s, background 0.25s; }
+    .card-hover:hover { border-color: rgba(34,197,94,0.25); background: #141414; }
+    .card-green { border-color: rgba(34,197,94,0.2) !important; }
+    .stat-card { background: #111; border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; padding: 20px 24px; }
+
+    /* BUTTONS */
+    .btn-primary { background: #22c55e; color: #000; font-weight: 700; border-radius: 100px; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary:hover { background: #4ade80; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.25); }
+    .btn-outline { border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.65); font-weight: 500; border-radius: 100px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.28); color: #fff; background: rgba(255,255,255,0.04); }
+    .btn-danger { border: 1px solid rgba(239,68,68,0.3); color: #f87171; font-weight: 500; border-radius: 100px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-danger:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.5); }
+
+    /* FORM ELEMENTS */
+    .form-label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; color: #fff; font-size: 0.875rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
+    .form-input:focus { border-color: rgba(34,197,94,0.4); }
+    .form-input::placeholder { color: rgba(255,255,255,0.2); }
+    select.form-input option { background: #1a1a1a; }
+    .form-input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* TAGS & CHIPS */
+    .tag-green { display: inline-flex; align-items: center; gap: 5px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #22c55e; border-radius: 100px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; padding: 3px 10px; }
+    .tech-chip { font-size: 0.7rem; padding: 2px 9px; border-radius: 100px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); }
+    .badge-red { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #f87171; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+    .badge-green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #4ade80; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 100px; }
+    .badge-muted { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 100px; }
+
+    /* TABLE */
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 10px 16px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
+    .tbl td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.83rem; color: rgba(255,255,255,0.75); vertical-align: middle; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* MISC */
+    .muted { color: rgba(255,255,255,0.4); }
+    .divider { border-top: 1px solid rgba(255,255,255,0.06); }
+    .rule-label { display: flex; align-items: center; gap: 10px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; }
+    .rule-label::after { content: ''; flex: 1; height: 1px; background: rgba(34,197,94,0.18); }
+
+    /* FLASH */
+    .flash-success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); color: #4ade80; }
+    .flash-danger  { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.25);  color: #f87171; }
+    .flash-warning { background: rgba(234,179,8,0.08);  border: 1px solid rgba(234,179,8,0.25);  color: #fbbf24; }
+    .flash-info    { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); color: #60a5fa; }
+
+    /* LIVE DOT */
+    @keyframes ping { 0%{transform:scale(1);opacity:1}75%,100%{transform:scale(1.9);opacity:0} }
+    .live-dot { position:relative;display:inline-flex; }
+    .live-dot span { width:6px;height:6px;background:#22c55e;border-radius:50%;display:block; }
+    .live-dot::before { content:'';position:absolute;inset:0;background:#22c55e;border-radius:50%;animation:ping 1.6s ease-out infinite; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    /* OVERLAY */
+    #sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 49; }
+    #sidebar-overlay.show { display: block; }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <!-- Brand -->
+  <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:rgba(255,255,255,0.06)">
+    <a href="{{ url_for('public.index') }}" class="font-extrabold tracking-tight" style="font-size:1.05rem;letter-spacing:-0.03em">LMN</a>
+    <span class="badge-muted">Admin</span>
+  </div>
+
+  <!-- Admin profile -->
+  {% if session.user %}
+  <div class="flex items-center gap-3 px-5 py-3.5" style="border-bottom:1px solid rgba(255,255,255,0.05)">
+    {% if session.user.picture %}
+    <img src="{{ session.user.picture }}" alt="avatar" class="w-7 h-7 rounded-full object-cover shrink-0">
+    {% else %}
+    <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.25)">
+      <i class="fas fa-user text-green-400" style="font-size:0.6rem"></i>
+    </div>
+    {% endif %}
+    <div class="min-w-0">
+      <p class="text-xs font-semibold truncate">{{ session.user.name or 'Admin' }}</p>
+      <p class="text-xs muted truncate">{{ session.user.email }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Nav -->
+  <nav class="flex-1 overflow-y-auto py-3">
+    <div class="side-section">Overview</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="side-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+      <i class="fas fa-th-large icon"></i> Dashboard
+    </a>
+    <a href="{{ url_for('admin.analytics') }}" class="side-link {% if request.endpoint == 'admin.analytics' %}active{% endif %}">
+      <i class="fas fa-chart-line icon"></i> Analytics
+    </a>
+
+    <div class="side-section">Inbox</div>
+    <a href="{{ url_for('admin.messages') }}" class="side-link {% if request.endpoint in ['admin.messages','admin.message_detail'] %}active{% endif %}">
+      <i class="fas fa-inbox icon"></i> Messages
+      {% set unread = unread_messages if unread_messages is defined else 0 %}
+      {% if unread > 0 %}
+      <span class="ml-auto badge-red">{{ unread }}</span>
+      {% endif %}
+    </a>
+
+    <div class="side-section">Content</div>
+    <a href="{{ url_for('admin.add_project') }}" class="side-link {% if request.endpoint == 'admin.add_project' %}active{% endif %}">
+      <i class="fas fa-plus-circle icon"></i> Add Project
+    </a>
+    <a href="{{ url_for('admin.add_experience') }}" class="side-link {% if request.endpoint == 'admin.add_experience' %}active{% endif %}">
+      <i class="fas fa-briefcase icon"></i> Add Experience
+    </a>
+
+    <div class="side-section">Site</div>
+    <a href="{{ url_for('public.index') }}" target="_blank" class="side-link">
+      <i class="fas fa-external-link-alt icon"></i> View Site
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="side-link" style="color:rgba(239,68,68,0.6)" onmouseover="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.07)'" onmouseout="this.style.color='rgba(239,68,68,0.6)';this.style.background=''">
+      <i class="fas fa-sign-out-alt icon"></i> Sign Out
+    </a>
+  </nav>
+
+  <!-- Footer -->
+  <div class="px-5 py-3 border-t" style="border-color:rgba(255,255,255,0.06)">
+    <div class="flex items-center gap-2">
+      <div class="live-dot"><span></span></div>
+      <span class="text-xs muted">System operational</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN WRAPPER -->
+<div id="main-wrap">
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <div class="flex items-center gap-3">
+      <button id="sidebar-toggle" class="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white/5 transition" onclick="toggleSidebar()">
+        <i class="fas fa-bars text-sm muted"></i>
+      </button>
+      <div>
+        <h1 class="text-sm font-bold tracking-tight">{% block page_title %}Dashboard{% endblock %}</h1>
+        <p class="text-xs muted">{% block page_subtitle %}Admin panel{% endblock %}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      {% block topbar_actions %}{% endblock %}
+      <a href="{{ url_for('public.index') }}" target="_blank" class="btn-outline text-xs px-4 py-2 hidden sm:inline-flex">
+        <i class="fas fa-external-link-alt text-xs"></i> View Site
+      </a>
+    </div>
+  </header>
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="px-6 pt-5 space-y-2">
+      {% for category, message in messages %}
+      <div class="flash-{{ category }} rounded-xl px-4 py-3 flex items-center justify-between text-sm font-medium">
+        <span>{{ message }}</span>
+        <button onclick="this.parentElement.remove()" class="ml-4 opacity-50 hover:opacity-100">
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- PAGE CONTENT -->
+  <main class="p-5 sm:p-6 lg:p-8">
+    {% block content %}{% endblock %}
+  </main>
+
+</div><!-- /main-wrap -->
+
+<script>
+  function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    const o = document.getElementById('sidebar-overlay');
+    s.classList.toggle('open');
+    o.classList.toggle('show');
+    document.body.style.overflow = s.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  // Confirm before delete actions
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-confirm]');
+    if (btn) {
+      if (!confirm(btn.dataset.confirm)) e.preventDefault();
+    }
+  });
+</script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

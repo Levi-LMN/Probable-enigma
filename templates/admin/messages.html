@@ -1,0 +1,142 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Messages{% endblock %}
+{% block page_title %}Inbox{% endblock %}
+{% block page_subtitle %}{{ unread_count }} unread message{{ 's' if unread_count != 1 else '' }}{% endblock %}
+
+{% block content %}
+
+<!-- FILTER TABS -->
+<div class="flex items-center gap-2 mb-6">
+  <a href="{{ url_for('admin.messages', filter='all') }}"
+     class="text-xs px-4 py-2 rounded-full font-semibold transition {% if filter_read == 'all' %}bg-green-500/15 text-green-400 border border-green-500/30{% else %}border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20{% endif %}">
+    All ({{ messages|length }})
+  </a>
+  <a href="{{ url_for('admin.messages', filter='unread') }}"
+     class="text-xs px-4 py-2 rounded-full font-semibold transition {% if filter_read == 'unread' %}bg-red-500/15 text-red-400 border border-red-500/30{% else %}border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20{% endif %}">
+    Unread{% if unread_count > 0 %} ({{ unread_count }}){% endif %}
+  </a>
+  <a href="{{ url_for('admin.messages', filter='read') }}"
+     class="text-xs px-4 py-2 rounded-full font-semibold transition {% if filter_read == 'read' %}bg-white/10 text-white/70 border border-white/20{% else %}border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20{% endif %}">
+    Read
+  </a>
+</div>
+
+{% if messages %}
+<div class="card overflow-hidden">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th style="width:16px"></th>
+        <th>From</th>
+        <th class="hidden sm:table-cell">Subject</th>
+        <th class="hidden md:table-cell">Received</th>
+        <th class="text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for msg in messages %}
+      <tr class="{% if not msg.is_read %}bg-green-500/[0.03]{% endif %} hover:bg-white/[0.02] cursor-pointer message-row" data-href="{{ url_for('admin.message_detail', message_id=msg.id) }}">
+
+        <!-- Unread indicator -->
+        <td class="pl-4 pr-0">
+          {% if not msg.is_read %}
+          <div class="w-1.5 h-1.5 rounded-full" style="background:#22c55e"></div>
+          {% endif %}
+        </td>
+
+        <!-- Sender -->
+        <td>
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#4ade80">
+              {{ msg.name[0].upper() }}
+            </div>
+            <div>
+              <p class="text-xs font-{% if not msg.is_read %}bold{% else %}semibold{% endif %} text-white">{{ msg.name }}</p>
+              <p class="text-xs muted">{{ msg.email }}</p>
+            </div>
+          </div>
+        </td>
+
+        <!-- Subject -->
+        <td class="hidden sm:table-cell">
+          <p class="text-xs {% if not msg.is_read %}font-semibold text-white/80{% else %}muted{% endif %} truncate max-w-xs" title="{{ msg.subject }}">{{ msg.subject }}</p>
+          <p class="text-xs muted truncate max-w-xs">{{ msg.message[:60] }}{% if msg.message|length > 60 %}…{% endif %}</p>
+        </td>
+
+        <!-- Date -->
+        <td class="hidden md:table-cell">
+          <p class="text-xs muted whitespace-nowrap">{{ msg.created_at.strftime('%d %b %Y') }}</p>
+          <p class="text-xs muted">{{ msg.created_at.strftime('%H:%M') }}</p>
+        </td>
+
+        <!-- Actions -->
+        <td onclick="event.stopPropagation()">
+          <div class="flex items-center justify-end gap-1.5">
+            <a href="{{ url_for('admin.message_detail', message_id=msg.id) }}"
+               class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/5 transition muted hover:text-white" title="View">
+              <i class="fas fa-eye text-xs"></i>
+            </a>
+            <button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/5 transition muted hover:text-white toggle-read-btn"
+                    data-id="{{ msg.id }}" data-read="{{ msg.is_read | int }}" title="Toggle read">
+              <i class="fas {% if msg.is_read %}fa-envelope text-xs{% else %}fa-envelope-open text-xs{% endif %}"></i>
+            </button>
+            <button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-500/10 transition muted hover:text-red-400 delete-msg-btn"
+                    data-id="{{ msg.id }}" data-name="{{ msg.name }}" title="Delete">
+              <i class="fas fa-trash text-xs"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+<div class="card p-16 text-center">
+  <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.15)">
+    <i class="fas fa-inbox text-2xl" style="color:rgba(34,197,94,0.4)"></i>
+  </div>
+  <h3 class="font-bold text-base mb-2">No Messages</h3>
+  <p class="text-sm muted">
+    {% if filter_read == 'unread' %}You're all caught up!
+    {% elif filter_read == 'read' %}No read messages yet.
+    {% else %}No one has sent a message yet.{% endif %}
+  </p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Clickable rows
+  document.querySelectorAll('.message-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+      window.location.href = this.dataset.href;
+    });
+  });
+
+  // Toggle read/unread
+  document.querySelectorAll('.toggle-read-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const id = this.dataset.id;
+      fetch(`/admin/messages/${id}/toggle-read`, { method: 'POST' })
+        .then(r => r.json())
+        .then(d => { if (d.success) location.reload(); });
+    });
+  });
+
+  // Delete message
+  document.querySelectorAll('.delete-msg-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const name = this.dataset.name;
+      if (!confirm(`Delete message from "${name}"? This cannot be undone.`)) return;
+      fetch(`/admin/messages/${this.dataset.id}/delete`, { method: 'POST' })
+        .then(r => r.json())
+        .then(d => { if (d.success) location.reload(); });
+    });
+  });
+</script>
+{% endblock %}

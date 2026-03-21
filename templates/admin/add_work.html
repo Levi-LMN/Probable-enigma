@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-6 bg-white shadow-lg rounded-lg">
+    <h1 class="text-2xl font-bold mb-6">Add Work Experience</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="mb-4 p-4 rounded {% if category == 'danger' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="company_name" class="block font-medium">Company Name</label>
+                <input type="text" id="company_name" name="company_name" required
+                       class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+            </div>
+
+            <div>
+                <label for="position" class="block font-medium">Position</label>
+                <input type="text" id="position" name="position" required
+                       class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+            </div>
+
+            <div>
+                <label for="start_date" class="block font-medium">Start Date</label>
+                <input type="date" id="start_date" name="start_date" required
+                       class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+            </div>
+
+            <div>
+                <label for="end_date" class="block font-medium">End Date</label>
+                <input type="date" id="end_date" name="end_date"
+                       class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+            </div>
+
+            <div>
+                <label for="location" class="block font-medium">Location</label>
+                <input type="text" id="location" name="location" required
+                       class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+            </div>
+
+            <div>
+                <label for="technologies" class="block font-medium">Technologies Used</label>
+                <input type="text" id="technologies" name="technologies"
+                       class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+            </div>
+        </div>
+
+        <div>
+            <label for="description" class="block font-medium">Description</label>
+            <textarea id="description" name="description" rows="4" required
+                      class="w-full p-2 border rounded focus:ring focus:ring-blue-300"></textarea>
+        </div>
+
+        <div>
+            <label for="company_logo" class="block font-medium">Company Logo</label>
+            <input type="file" id="company_logo" name="company_logo" accept="image/*"
+                   class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+        </div>
+
+        <div>
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="is_current" class="rounded border-gray-300 text-blue-600 focus:ring focus:ring-blue-300">
+                <span class="ml-2">This is my current job</span>
+            </label>
+        </div>
+
+        <div>
+            <button type="submit"
+                    class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:ring focus:ring-blue-300">
+                Add Work Experience
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

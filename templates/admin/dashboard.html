@@ -1,0 +1,262 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Welcome back, {{ session.user.name.split(' ')[0] if session.user else 'Admin' }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('admin.add_project') }}" class="btn-primary text-xs px-4 py-2">
+  <i class="fas fa-plus text-xs"></i> New Project
+</a>
+{% endblock %}
+
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="stat-card">
+    <p class="text-xs muted mb-1 uppercase tracking-wider font-semibold">Total Visits</p>
+    <p class="text-2xl font-extrabold tracking-tight mb-1">{{ total_visits }}</p>
+    <p class="text-xs muted">All time</p>
+  </div>
+  <div class="stat-card">
+    <p class="text-xs muted mb-1 uppercase tracking-wider font-semibold">Unique Visitors</p>
+    <p class="text-2xl font-extrabold tracking-tight mb-1">{{ total_unique }}</p>
+    <p class="text-xs muted">All time</p>
+  </div>
+  <div class="stat-card">
+    <p class="text-xs muted mb-1 uppercase tracking-wider font-semibold">Today's Visits</p>
+    <p class="text-2xl font-extrabold tracking-tight mb-1">{{ today_visits }}</p>
+    <div class="flex items-center gap-1.5 mt-1">
+      <div class="live-dot"><span></span></div>
+      <span class="text-xs muted">Live</span>
+    </div>
+  </div>
+  <div class="stat-card" style="border-color: {% if unread_messages > 0 %}rgba(239,68,68,0.3){% else %}rgba(255,255,255,0.07){% endif %}">
+    <p class="text-xs muted mb-1 uppercase tracking-wider font-semibold">Unread Messages</p>
+    <p class="text-2xl font-extrabold tracking-tight mb-1 {% if unread_messages > 0 %}text-red-400{% endif %}">{{ unread_messages }}</p>
+    <a href="{{ url_for('admin.messages') }}" class="text-xs" style="color:rgba(34,197,94,0.7)">View inbox →</a>
+  </div>
+</div>
+
+<!-- PROJECTS & EXPERIENCES -->
+<div class="grid lg:grid-cols-2 gap-6">
+
+  <!-- PROJECTS -->
+  <div class="card">
+    <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <div class="rule-label flex-1">Projects <span class="ml-1 font-normal muted text-xs">({{ projects|length }})</span></div>
+      <a href="{{ url_for('admin.add_project') }}" class="btn-primary text-xs px-3.5 py-1.5 ml-4 shrink-0">
+        <i class="fas fa-plus text-xs"></i> Add
+      </a>
+    </div>
+
+    {% if projects %}
+    <div class="overflow-x-auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Visible</th>
+            <th>Featured</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for project in projects %}
+          <tr>
+            <td>
+              <div class="font-semibold text-white truncate max-w-[160px]" title="{{ project.name }}">{{ project.name }}</div>
+              <div class="text-xs muted mt-0.5">Order: {{ project.display_order }}</div>
+            </td>
+            <td>
+              <span class="badge-muted">{{ project.category }}</span>
+            </td>
+            <td>
+              <button class="toggle-visibility text-xs px-2.5 py-1 rounded-full font-semibold transition"
+                      data-id="{{ project.id }}"
+                      data-type="project"
+                      style="{% if project.is_visible %}background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ade80{% else %}background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3){% endif %}">
+                {% if project.is_visible %}<i class="fas fa-eye text-xs mr-1"></i>On{% else %}<i class="fas fa-eye-slash text-xs mr-1"></i>Off{% endif %}
+              </button>
+            </td>
+            <td>
+              {% if project.is_featured %}<span class="badge-green"><i class="fas fa-star text-xs mr-1"></i>Yes</span>{% else %}<span class="badge-muted">No</span>{% endif %}
+            </td>
+            <td>
+              <div class="flex items-center justify-end gap-2">
+                <a href="{{ url_for('admin.edit_project', project_id=project.id) }}" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/5 transition muted hover:text-white" title="Edit">
+                  <i class="fas fa-pencil-alt text-xs"></i>
+                </a>
+                <button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-500/10 transition muted hover:text-red-400 delete-btn"
+                        data-url="{{ url_for('admin.delete_project', project_id=project.id) }}"
+                        data-name="{{ project.name }}" title="Delete">
+                  <i class="fas fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="px-5 py-12 text-center">
+      <i class="fas fa-folder-open text-3xl mb-3" style="color:rgba(34,197,94,0.2)"></i>
+      <p class="text-sm muted">No projects yet.</p>
+      <a href="{{ url_for('admin.add_project') }}" class="btn-primary text-xs px-5 py-2 mt-4">Add Your First Project</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- WORK EXPERIENCE -->
+  <div class="card">
+    <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <div class="rule-label flex-1">Experience <span class="ml-1 font-normal muted text-xs">({{ experiences|length }})</span></div>
+      <a href="{{ url_for('admin.add_experience') }}" class="btn-primary text-xs px-3.5 py-1.5 ml-4 shrink-0">
+        <i class="fas fa-plus text-xs"></i> Add
+      </a>
+    </div>
+
+    {% if experiences %}
+    <div class="overflow-x-auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Company / Role</th>
+            <th>Dates</th>
+            <th>Visible</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exp in experiences %}
+          <tr>
+            <td>
+              <div class="font-semibold text-white truncate max-w-[160px]">{{ exp.company_name }}</div>
+              <div class="text-xs muted mt-0.5 truncate max-w-[160px]">{{ exp.position }}</div>
+            </td>
+            <td class="text-xs muted whitespace-nowrap">
+              {{ exp.start_date.strftime('%b %Y') }} —
+              {% if exp.is_current %}<span class="text-green-400">Present</span>
+              {% elif exp.end_date %}{{ exp.end_date.strftime('%b %Y') }}
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              <button class="toggle-visibility text-xs px-2.5 py-1 rounded-full font-semibold transition"
+                      data-id="{{ exp.id }}"
+                      data-type="experience"
+                      style="{% if exp.is_visible %}background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ade80{% else %}background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3){% endif %}">
+                {% if exp.is_visible %}<i class="fas fa-eye text-xs mr-1"></i>On{% else %}<i class="fas fa-eye-slash text-xs mr-1"></i>Off{% endif %}
+              </button>
+            </td>
+            <td>
+              <div class="flex items-center justify-end gap-2">
+                <a href="{{ url_for('admin.edit_experience', experience_id=exp.id) }}" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/5 transition muted hover:text-white" title="Edit">
+                  <i class="fas fa-pencil-alt text-xs"></i>
+                </a>
+                <button class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-500/10 transition muted hover:text-red-400 delete-btn"
+                        data-url="{{ url_for('admin.delete_experience', experience_id=exp.id) }}"
+                        data-name="{{ exp.company_name }}" title="Delete">
+                  <i class="fas fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="px-5 py-12 text-center">
+      <i class="fas fa-briefcase text-3xl mb-3" style="color:rgba(34,197,94,0.2)"></i>
+      <p class="text-sm muted">No work experience yet.</p>
+      <a href="{{ url_for('admin.add_experience') }}" class="btn-primary text-xs px-5 py-2 mt-4">Add Experience</a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- QUICK LINKS -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+  <a href="{{ url_for('admin.analytics') }}" class="card card-hover p-4 flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2)">
+      <i class="fas fa-chart-bar text-green-400 text-sm"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold">Analytics</p>
+      <p class="text-xs muted">View stats</p>
+    </div>
+  </a>
+  <a href="{{ url_for('admin.messages') }}" class="card card-hover p-4 flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2)">
+      <i class="fas fa-envelope text-blue-400 text-sm"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold">Inbox</p>
+      <p class="text-xs muted">{{ unread_messages }} unread</p>
+    </div>
+  </a>
+  <a href="{{ url_for('admin.add_project') }}" class="card card-hover p-4 flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2)">
+      <i class="fas fa-code text-purple-400 text-sm"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold">New Project</p>
+      <p class="text-xs muted">Add project</p>
+    </div>
+  </a>
+  <a href="{{ url_for('public.index') }}" target="_blank" class="card card-hover p-4 flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2)">
+      <i class="fas fa-globe text-yellow-400 text-sm"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold">View Site</p>
+      <p class="text-xs muted">Opens new tab</p>
+    </div>
+  </a>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Toggle visibility (project or experience)
+  document.querySelectorAll('.toggle-visibility').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const id   = this.dataset.id;
+      const type = this.dataset.type;
+      const url  = type === 'project'
+        ? `/admin/project/${id}/toggle-visibility`
+        : `/admin/experience/${id}/toggle-visibility`;
+
+      fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            if (data.is_visible) {
+              this.style.cssText = 'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ade80';
+              this.innerHTML = '<i class="fas fa-eye text-xs mr-1"></i>On';
+            } else {
+              this.style.cssText = 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.3)';
+              this.innerHTML = '<i class="fas fa-eye-slash text-xs mr-1"></i>Off';
+            }
+          }
+        });
+    });
+  });
+
+  // Delete with confirmation
+  document.querySelectorAll('.delete-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const name = this.dataset.name;
+      if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+      fetch(this.dataset.url, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => { if (data.success) location.reload(); });
+    });
+  });
+</script>
+{% endblock %}

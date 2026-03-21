@@ -1,0 +1,258 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Edit' if experience else 'Add' }} Experience{% endblock %}
+{% block page_title %}{{ 'Edit' if experience else 'New' }} Work Experience{% endblock %}
+{% block page_subtitle %}{{ 'Update experience details' if experience else 'Add a role to your career timeline' }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('admin.dashboard') }}" class="btn-outline text-xs px-4 py-2">
+  <i class="fas fa-arrow-left text-xs"></i> Back
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <form method="POST"
+        action="{% if experience %}{{ url_for('admin.edit_experience', experience_id=experience.id) }}{% else %}{{ url_for('admin.add_experience') }}{% endif %}"
+        enctype="multipart/form-data">
+
+    <div class="grid lg:grid-cols-3 gap-6">
+
+      <!-- LEFT COLUMN -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Company Info -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Company Details</div>
+          <div class="space-y-4">
+
+            <div>
+              <label class="form-label">Company Name *</label>
+              <input type="text" name="company_name" required class="form-input"
+                     value="{{ experience.company_name if experience else '' }}"
+                     placeholder="Acme Corp">
+            </div>
+
+            <div>
+              <label class="form-label">Your Position / Title *</label>
+              <input type="text" name="position" required class="form-input"
+                     value="{{ experience.position if experience else '' }}"
+                     placeholder="Senior Software Engineer">
+            </div>
+
+            <div>
+              <label class="form-label">Location</label>
+              <input type="text" name="location" class="form-input"
+                     value="{{ experience.location if experience else '' }}"
+                     placeholder="Nairobi, Kenya (Remote)">
+            </div>
+
+            <!-- Company Logo -->
+            <div>
+              <label class="form-label">Company Logo</label>
+              {% if experience and experience.company_logo %}
+              <div class="flex items-center gap-4 mb-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07)">
+                <img src="{{ url_for('static', filename=experience.company_logo) }}"
+                     alt="Current logo" class="h-10 object-contain" style="max-width:120px">
+                <div>
+                  <p class="text-xs muted">Current logo</p>
+                  <p class="text-xs muted mt-0.5">Upload a new one to replace it</p>
+                </div>
+              </div>
+              {% endif %}
+              <input type="file" name="company_logo" accept="image/*" class="form-input py-2"
+                     onchange="previewLogo(this)">
+              <div id="logoPreview" class="mt-3 hidden">
+                <img id="logoPreviewImg" class="h-10 object-contain rounded" style="max-width:120px">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Timeline</div>
+          <div class="space-y-4">
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">Start Date *</label>
+                <input type="date" name="start_date" required class="form-input"
+                       value="{{ experience.start_date.strftime('%Y-%m-%d') if experience else '' }}">
+              </div>
+              <div id="endDateWrapper">
+                <label class="form-label">End Date</label>
+                <input type="date" name="end_date" id="endDateInput" class="form-input"
+                       value="{{ experience.end_date.strftime('%Y-%m-%d') if experience and experience.end_date else '' }}"
+                       {% if experience and experience.is_current %}disabled{% endif %}>
+              </div>
+            </div>
+
+            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-xl transition hover:bg-white/[0.03]"
+                   style="border:1px solid rgba(255,255,255,0.06)">
+              <div class="relative shrink-0">
+                <input type="checkbox" name="is_current" id="isCurrent"
+                       {% if experience and experience.is_current %}checked{% endif %}
+                       class="peer sr-only" onchange="toggleCurrent(this)">
+                <div class="w-10 h-5 rounded-full transition peer-checked:bg-green-500" style="background:rgba(255,255,255,0.1)"></div>
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5" style="background:#fff"></div>
+              </div>
+              <div>
+                <p class="text-sm font-semibold">Currently working here</p>
+                <p class="text-xs muted">Disables the end date and shows "Present"</p>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Description</div>
+          <textarea name="description" rows="6" required class="form-input resize-y"
+                    placeholder="Describe your responsibilities, achievements, and impact in this role…">{{ experience.description if experience else '' }}</textarea>
+          <p class="text-xs muted mt-2">Tip: Use plain text. Each paragraph will render as-is on the timeline.</p>
+        </div>
+
+        <!-- Technologies -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Technologies Used</div>
+          <p class="text-xs muted mb-3">Comma-separated list of tools and technologies.</p>
+          <input type="text" name="technologies" class="form-input"
+                 value="{{ experience.technologies if experience else '' }}"
+                 placeholder="Python, Flask, PostgreSQL, Docker, AWS">
+          <div id="techPreview" class="flex flex-wrap gap-2 mt-3"></div>
+        </div>
+
+      </div><!-- /left -->
+
+      <!-- RIGHT COLUMN -->
+      <div class="space-y-5">
+
+        <!-- Visibility -->
+        <div class="card p-5">
+          <div class="rule-label mb-4">Visibility</div>
+          <label class="flex items-center justify-between gap-3 cursor-pointer">
+            <div>
+              <p class="text-sm font-semibold">Visible</p>
+              <p class="text-xs muted">Show on the work page</p>
+            </div>
+            <div class="relative shrink-0">
+              <input type="checkbox" name="is_visible"
+                     {% if not experience or experience.is_visible %}checked{% endif %}
+                     class="peer sr-only">
+              <div class="w-10 h-5 rounded-full transition peer-checked:bg-green-500" style="background:rgba(255,255,255,0.1)"></div>
+              <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5" style="background:#fff"></div>
+            </div>
+          </label>
+          <div class="divider my-3"></div>
+          <div>
+            <label class="form-label">Display Order</label>
+            <input type="number" name="display_order" class="form-input" min="0"
+                   value="{{ experience.display_order if experience else 0 }}">
+            <p class="text-xs muted mt-1.5">Lower numbers appear first.</p>
+          </div>
+        </div>
+
+        <!-- Summary (edit mode) -->
+        {% if experience %}
+        <div class="card p-5">
+          <div class="rule-label mb-4">Info</div>
+          <div class="space-y-2.5 text-xs">
+            <div class="flex justify-between">
+              <span class="muted">Added</span>
+              <span>{{ experience.created_at.strftime('%d %b %Y') }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="muted">Updated</span>
+              <span>{{ experience.updated_at.strftime('%d %b %Y') if experience.updated_at else '—' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="muted">Status</span>
+              {% if experience.is_current %}
+              <span class="text-green-400 font-semibold">Current</span>
+              {% else %}
+              <span class="muted">Past</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Submit -->
+        <div class="space-y-3">
+          <button type="submit" class="btn-primary w-full py-3 text-sm justify-center">
+            <i class="fas fa-save"></i>
+            {{ 'Update Experience' if experience else 'Save Experience' }}
+          </button>
+          <a href="{{ url_for('admin.dashboard') }}" class="btn-outline w-full py-3 text-sm justify-center">
+            Cancel
+          </a>
+        </div>
+
+        {% if experience %}
+        <div class="card p-5" style="border-color:rgba(239,68,68,0.2)">
+          <p class="text-xs font-bold text-red-400 mb-2 uppercase tracking-wider">Danger Zone</p>
+          <p class="text-xs muted mb-3">Permanently remove this entry from your timeline.</p>
+          <button type="button" id="deleteExpBtn" class="btn-danger w-full py-2.5 text-xs justify-center">
+            <i class="fas fa-trash"></i> Delete Experience
+          </button>
+        </div>
+        {% endif %}
+
+      </div><!-- /right -->
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Toggle current position
+  function toggleCurrent(cb) {
+    const endInput = document.getElementById('endDateInput');
+    endInput.disabled = cb.checked;
+    if (cb.checked) endInput.value = '';
+  }
+
+  // Logo preview
+  function previewLogo(input) {
+    const preview    = document.getElementById('logoPreview');
+    const previewImg = document.getElementById('logoPreviewImg');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewImg.src = e.target.result;
+        preview.classList.remove('hidden');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Live tech chip preview from comma-separated input
+  const techInput = document.querySelector('input[name="technologies"]');
+  const techPreview = document.getElementById('techPreview');
+
+  function renderTechPreview() {
+    techPreview.innerHTML = techInput.value
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t)
+      .map(t => `<span class="tech-chip">${t}</span>`)
+      .join('');
+  }
+
+  techInput.addEventListener('input', renderTechPreview);
+  renderTechPreview(); // initial render
+
+  // Delete
+  {% if experience %}
+  document.getElementById('deleteExpBtn').addEventListener('click', function() {
+    if (!confirm('Delete "{{ experience.position }} at {{ experience.company_name }}"? This cannot be undone.')) return;
+    fetch('{{ url_for("admin.delete_experience", experience_id=experience.id) }}', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => { if (d.success) window.location.href = '{{ url_for("admin.dashboard") }}'; });
+  });
+  {% endif %}
+</script>
+{% endblock %}

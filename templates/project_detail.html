@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} — LMN Portfolio{% endblock %}
+{% block breadcrumb %}{{ project.name }}{% endblock %}
+
+{% block content %}
+
+<!-- PROJECT HEADER -->
+<section class="py-14 sm:py-20 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="reveal">
+      <a href="{{ url_for('public.projects') }}"
+         class="inline-flex items-center gap-2 text-xs font-semibold mb-8 transition-colors muted hover:text-white">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Projects
+      </a>
+
+      <div class="flex flex-wrap items-center gap-3 mb-5 sm:mb-6">
+        <span class="tag">{{ project.category }}</span>
+        {% if project.is_featured %}<span class="tag" style="color:#f59e0b;border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.08)">&#9733; Featured</span>{% endif %}
+        {% if project.date_completed %}
+        <span class="text-xs font-semibold px-3 py-1 rounded-full" style="color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2)">Completed</span>
+        {% else %}
+        <span class="text-xs font-semibold px-3 py-1 rounded-full" style="color:#60a5fa;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2)">In Progress</span>
+        {% endif %}
+      </div>
+
+      <h1 class="sec-title mb-5 sm:mb-6">{{ project.name }}</h1>
+
+      {% if project.date_started %}
+      <p class="text-xs muted mb-6 sm:mb-8 flex items-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        {{ project.date_started.strftime('%B %Y') }}{% if project.date_completed %} &mdash; {{ project.date_completed.strftime('%B %Y') }}{% endif %}
+      </p>
+      {% endif %}
+
+      <div class="flex flex-wrap gap-3">
+        {% if project.github_link %}
+        <a href="{{ project.github_link }}" target="_blank" class="btn-outline px-5 sm:px-6 py-2.5 text-sm inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          View Code
+        </a>
+        {% endif %}
+        {% if project.preview_link %}
+        <a href="{{ project.preview_link }}" target="_blank" class="btn-primary px-5 sm:px-6 py-2.5 text-sm inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+          Live Demo
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECT CONTENT -->
+<section class="pb-14 sm:pb-20 px-4 sm:px-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12">
+
+      <!-- MAIN CONTENT -->
+      <div class="lg:col-span-2 space-y-8">
+
+        <!-- Images -->
+        {% if project.images %}
+        <div class="reveal">
+          <div class="flex items-center justify-between mb-5 sm:mb-6">
+            <div class="rule-label flex-1">Screenshots</div>
+            {% if project.images|length > 1 %}
+            <span class="text-xs muted-sm ml-4 shrink-0">{{ project.images|length }} images &mdash; click to expand</span>
+            {% endif %}
+          </div>
+
+          {% if project.images|length == 1 %}
+          <!-- Single image: full width, clickable -->
+          <div class="card overflow-hidden cursor-pointer group" style="border-radius:16px" onclick="openLightbox(0)">
+            <div class="relative overflow-hidden">
+              <img src="{{ url_for('static', filename=project.images[0].filename) }}"
+                   alt="{{ project.images[0].caption or project.name }}"
+                   class="w-full h-auto group-hover:scale-[1.02] transition-transform duration-500">
+              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style="background:rgba(0,0,0,0.35)">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,0.9)">
+                  <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            {% if project.images[0].caption %}
+            <div class="px-5 py-3" style="border-top:1px solid rgba(255,255,255,0.06)">
+              <p class="text-xs sm:text-sm muted">{{ project.images[0].caption }}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          {% else %}
+          <!-- Multiple images: responsive grid -->
+          <div class="grid gap-3
+            {% if project.images|length == 2 %}grid-cols-2
+            {% elif project.images|length == 3 %}grid-cols-2 sm:grid-cols-3
+            {% else %}grid-cols-2 sm:grid-cols-3
+            {% endif %}">
+
+            {% for image in project.images %}
+            <div class="card overflow-hidden cursor-pointer group relative
+                        {% if loop.first and project.images|length == 3 %}col-span-2 sm:col-span-1{% endif %}"
+                 style="border-radius:14px"
+                 onclick="openLightbox({{ loop.index0 }})">
+              <div class="overflow-hidden" style="aspect-ratio:16/10">
+                <img src="{{ url_for('static', filename=image.filename) }}"
+                     alt="{{ image.caption or project.name }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              </div>
+              <!-- Hover overlay -->
+              <div class="absolute inset-0 flex items-end opacity-0 group-hover:opacity-100 transition-opacity" style="background:linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)">
+                <div class="w-full px-3 py-3 flex items-center justify-between">
+                  <p class="text-xs font-medium text-white truncate">
+                    {{ image.caption or 'Screenshot ' ~ loop.index }}
+                  </p>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 ml-2" style="background:rgba(34,197,94,0.85)">
+                    <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- LIGHTBOX — built by JS and appended directly to document.body to avoid all z-index/stacking context issues -->
+        {% if project.images %}
+        <script>
+          var lbImages = [
+            {% for image in project.images %}
+            { src: "{{ url_for('static', filename=image.filename) }}", caption: "{{ image.caption or '' }}" }{% if not loop.last %},{% endif %}
+            {% endfor %}
+          ];
+          var lbIndex = 0;
+          var lbEl = null; // will hold the lightbox DOM element
+
+          function buildLightbox() {
+            if (lbEl) return; // already built
+
+            lbEl = document.createElement('div');
+            lbEl.id = 'lightbox';
+            lbEl.style.cssText = [
+              'display:none',
+              'position:fixed',
+              'top:0','left:0','right:0','bottom:0',
+              'background:rgba(0,0,0,0.96)',
+              'backdrop-filter:blur(24px)',
+              '-webkit-backdrop-filter:blur(24px)',
+              'z-index:2147483647'   /* max possible z-index */
+            ].join(';');
+
+            lbEl.innerHTML = `
+              <!-- TOP BAR -->
+              <div style="position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(to bottom,rgba(0,0,0,0.7),transparent);z-index:2147483647">
+                <span id="lb-counter" style="font-size:11px;font-family:monospace;font-weight:600;color:rgba(255,255,255,0.45);background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:4px 12px;border-radius:99px;letter-spacing:0.05em"></span>
+                <button id="lb-close-btn" title="Close (Esc)" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#22c55e;color:#000;border:none;cursor:pointer;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:800;letter-spacing:0.02em;box-shadow:0 4px 20px rgba(34,197,94,0.45);transition:transform 0.15s,box-shadow 0.15s;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                  Close
+                </button>
+              </div>
+
+              <!-- PREV -->
+              <button id="lb-prev" style="position:fixed;left:16px;top:50%;transform:translateY(-50%);z-index:2147483647;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);cursor:pointer;transition:background 0.2s,border-color 0.2s">
+                <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+
+              <!-- NEXT -->
+              <button id="lb-next" style="position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:2147483647;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);cursor:pointer;transition:background 0.2s,border-color 0.2s">
+                <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              </button>
+
+              <!-- IMAGE AREA (click outside image to close) -->
+              <div id="lb-backdrop" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 70px;">
+                <div id="lb-img-wrap" style="max-width:900px;width:100%;">
+                  <img id="lb-img" src="" alt="" style="width:100%;height:auto;max-height:72vh;object-fit:contain;border-radius:14px;box-shadow:0 40px 100px rgba(0,0,0,0.7);display:block;transition:opacity 0.22s ease,transform 0.22s ease;">
+                </div>
+                <p id="lb-caption" style="display:none;margin-top:16px;font-size:13px;color:rgba(255,255,255,0.45);text-align:center;max-width:560px;line-height:1.5;"></p>
+              </div>
+
+              <!-- DOTS -->
+              <div id="lb-dots" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;z-index:2147483647"></div>
+            `;
+
+            document.body.appendChild(lbEl);
+
+            // Wire up close button
+            document.getElementById('lb-close-btn').addEventListener('click', closeLightbox);
+
+            // Wire up arrows
+            document.getElementById('lb-prev').addEventListener('click', function(e) { e.stopPropagation(); moveLightbox(-1); });
+            document.getElementById('lb-next').addEventListener('click', function(e) { e.stopPropagation(); moveLightbox(1); });
+
+            // Hover styles for arrows
+            [document.getElementById('lb-prev'), document.getElementById('lb-next')].forEach(function(btn) {
+              btn.addEventListener('mouseover', function() { this.style.background='rgba(34,197,94,0.18)'; this.style.borderColor='rgba(34,197,94,0.4)'; });
+              btn.addEventListener('mouseout',  function() { this.style.background='rgba(255,255,255,0.07)'; this.style.borderColor='rgba(255,255,255,0.14)'; });
+            });
+
+            // Hover styles for close button
+            var closeBtn = document.getElementById('lb-close-btn');
+            closeBtn.addEventListener('mouseover', function() { this.style.transform='scale(1.06)'; this.style.boxShadow='0 6px 28px rgba(34,197,94,0.6)'; });
+            closeBtn.addEventListener('mouseout',  function() { this.style.transform='scale(1)';    this.style.boxShadow='0 4px 20px rgba(34,197,94,0.45)'; });
+
+            // Click on backdrop (not image) to close
+            document.getElementById('lb-backdrop').addEventListener('click', function(e) {
+              if (e.target === this) closeLightbox();
+            });
+            document.getElementById('lb-img-wrap').addEventListener('click', function(e) { e.stopPropagation(); });
+
+            // Keyboard
+            document.addEventListener('keydown', function(e) {
+              if (!lbEl || lbEl.style.display === 'none') return;
+              if (e.key === 'Escape')     closeLightbox();
+              if (e.key === 'ArrowLeft')  moveLightbox(-1);
+              if (e.key === 'ArrowRight') moveLightbox(1);
+            });
+          }
+
+          function openLightbox(index) {
+            buildLightbox();
+            lbIndex = index;
+            lbEl.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            renderLightbox();
+          }
+
+          function closeLightbox() {
+            if (!lbEl) return;
+            lbEl.style.display = 'none';
+            document.body.style.overflow = '';
+          }
+
+          function moveLightbox(dir) {
+            lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+            renderLightbox();
+          }
+
+          function renderLightbox() {
+            var img = lbImages[lbIndex];
+            var el = document.getElementById('lb-img');
+            el.style.opacity = '0';
+            el.style.transform = 'scale(0.97)';
+            el.src = img.src;
+            el.alt = img.caption || 'Screenshot';
+            el.onload = function() { el.style.opacity = '1'; el.style.transform = 'scale(1)'; };
+
+            var cap = document.getElementById('lb-caption');
+            if (img.caption) { cap.textContent = img.caption; cap.style.display = 'block'; }
+            else { cap.style.display = 'none'; }
+
+            document.getElementById('lb-counter').textContent = (lbIndex + 1) + ' / ' + lbImages.length;
+
+            var showArrows = lbImages.length > 1;
+            document.getElementById('lb-prev').style.display = showArrows ? 'flex' : 'none';
+            document.getElementById('lb-next').style.display = showArrows ? 'flex' : 'none';
+
+            var dotsEl = document.getElementById('lb-dots');
+            dotsEl.innerHTML = '';
+            if (lbImages.length > 1) {
+              lbImages.forEach(function(_, i) {
+                var d = document.createElement('div');
+                d.style.cssText = 'width:7px;height:7px;border-radius:50%;cursor:pointer;transition:background 0.2s,transform 0.2s;';
+                d.style.background = i === lbIndex ? '#22c55e' : 'rgba(255,255,255,0.2)';
+                d.style.transform  = i === lbIndex ? 'scale(1.4)' : 'scale(1)';
+                d.onclick = function() { lbIndex = i; renderLightbox(); };
+                dotsEl.appendChild(d);
+              });
+            }
+          }
+        </script>
+        {% endif %}
+
+        <!-- Description -->
+        <div class="reveal">
+          <div class="rule-label mb-5 sm:mb-6">About this project</div>
+          <div class="text-sm sm:text-base muted leading-relaxed" style="color:rgba(255,255,255,0.6)">
+            {{ project.description | replace('\n', '<br>') | safe }}
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="lg:col-span-1 space-y-4 sm:space-y-5">
+
+        <!-- Technologies -->
+        <div class="card p-5 sm:p-6 reveal">
+          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#22c55e">Technologies</h3>
+          <div class="flex flex-wrap gap-2">
+            {% for tech in project.technologies_list %}
+            <span class="tech-chip" style="background:rgba(34,197,94,0.08);color:rgba(255,255,255,0.6)">{{ tech }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Project Info -->
+        <div class="card p-5 sm:p-6 reveal" style="transition-delay:0.1s">
+          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#22c55e">Project Info</h3>
+          <div class="space-y-4">
+            <div>
+              <p class="text-xs muted-sm mb-1 uppercase tracking-wider">Category</p>
+              <p class="text-sm font-medium">{{ project.category }}</p>
+            </div>
+            {% if project.date_started %}
+            <div>
+              <p class="text-xs muted-sm mb-1 uppercase tracking-wider">Started</p>
+              <p class="text-sm font-medium">{{ project.date_started.strftime('%B %Y') }}</p>
+            </div>
+            {% endif %}
+            {% if project.date_completed %}
+            <div>
+              <p class="text-xs muted-sm mb-1 uppercase tracking-wider">Completed</p>
+              <p class="text-sm font-medium">{{ project.date_completed.strftime('%B %Y') }}</p>
+            </div>
+            {% endif %}
+            <div>
+              <p class="text-xs muted-sm mb-1 uppercase tracking-wider">Status</p>
+              <p class="text-sm font-medium" style="color:{% if project.date_completed %}#22c55e{% else %}#60a5fa{% endif %}">
+                {% if project.date_completed %}Completed{% else %}In Progress{% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Share -->
+        <div class="card p-5 sm:p-6 reveal" style="transition-delay:0.2s">
+          <h3 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#22c55e">Share</h3>
+          <div class="flex gap-2">
+            <button onclick="shareOnTwitter()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(29,161,242,0.1);color:rgba(29,161,242,0.8);border:1px solid rgba(29,161,242,0.2)" onmouseover="this.style.background='rgba(29,161,242,0.2)'" onmouseout="this.style.background='rgba(29,161,242,0.1)'">Twitter</button>
+            <button onclick="shareOnLinkedIn()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(10,102,194,0.1);color:rgba(10,102,194,0.8);border:1px solid rgba(10,102,194,0.2)" onmouseover="this.style.background='rgba(10,102,194,0.2)'" onmouseout="this.style.background='rgba(10,102,194,0.1)'">LinkedIn</button>
+            <button onclick="copyLink()" class="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-colors text-center" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.08)" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RELATED PROJECTS -->
+{% if related_projects %}
+<section class="py-12 sm:py-16 px-4 sm:px-6" style="border-top:1px solid rgba(255,255,255,0.06)">
+  <div class="max-w-6xl mx-auto">
+    <div class="rule-label mb-6 sm:mb-8 reveal">Related Projects</div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 reveal" style="transition-delay:0.1s">
+      {% for related in related_projects %}
+      <div class="card p-5 sm:p-6 flex flex-col group">
+        {% if related.primary_image %}
+        <div class="rounded-xl overflow-hidden mb-4" style="height:120px;background:#1a1a1a">
+          <img src="{{ url_for('static', filename=related.primary_image.filename) }}"
+               alt="{{ related.name }}"
+               class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+        </div>
+        {% else %}
+        <div class="rounded-xl mb-4 flex items-center justify-center" style="height:120px;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.1)">
+          <svg class="w-8 h-8 opacity-20" fill="none" stroke="#22c55e" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+          </svg>
+        </div>
+        {% endif %}
+        <h3 class="font-extrabold text-sm mb-2 tracking-tight group-hover:text-green-400 transition-colors">{{ related.name }}</h3>
+        <p class="text-xs muted leading-relaxed flex-1 mb-4">{{ related.description[:100] }}...</p>
+        <a href="{{ url_for('public.project_detail', project_id=related.id) }}"
+           class="inline-flex items-center gap-1.5 text-xs font-semibold group-hover:gap-3 transition-all" style="color:#22c55e">
+          View &#8594;
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function shareOnTwitter() {
+    const url = window.location.href;
+    const text = '{{ project.name }}';
+    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(text), '_blank');
+  }
+  function shareOnLinkedIn() {
+    window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), '_blank');
+  }
+  function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+      alert('Link copied!');
+    });
+  }
+</script>
+{% endblock %}

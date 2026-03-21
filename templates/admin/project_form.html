@@ -1,0 +1,366 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Edit' if project else 'Add' }} Project{% endblock %}
+{% block page_title %}{{ 'Edit' if project else 'New' }} Project{% endblock %}
+{% block page_subtitle %}{{ 'Update project details' if project else 'Add a project to your portfolio' }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{{ url_for('admin.dashboard') }}" class="btn-outline text-xs px-4 py-2">
+  <i class="fas fa-arrow-left text-xs"></i> Back
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <form method="POST"
+        action="{% if project %}{{ url_for('admin.edit_project', project_id=project.id) }}{% else %}{{ url_for('admin.add_project') }}{% endif %}"
+        enctype="multipart/form-data">
+
+    <div class="grid lg:grid-cols-3 gap-6">
+
+      <!-- LEFT COLUMN (main fields) -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Basic Info -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Basic Info</div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="form-label">Project Name *</label>
+              <input type="text" name="name" required class="form-input"
+                     value="{{ project.name if project else '' }}" placeholder="My Awesome Project">
+            </div>
+
+            <div>
+              <label class="form-label">Description *</label>
+              <textarea name="description" rows="5" required class="form-input resize-y"
+                        placeholder="Describe what this project does, the problem it solves, and your role…">{{ project.description if project else '' }}</textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">Category *</label>
+                <select name="category" id="categorySelect" required class="form-input">
+                  <option value="">Select category…</option>
+                  {% for cat in categories %}
+                  <option value="{{ cat }}" {% if project and project.category == cat %}selected{% endif %}>{{ cat }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Display Order</label>
+                <input type="number" name="display_order" class="form-input" min="0"
+                       value="{{ project.display_order if project else 0 }}">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">Date Started</label>
+                <input type="date" name="date_started" class="form-input"
+                       value="{{ project.date_started.strftime('%Y-%m-%d') if project and project.date_started else '' }}">
+              </div>
+              <div>
+                <label class="form-label">Date Completed</label>
+                <input type="date" name="date_completed" class="form-input"
+                       value="{{ project.date_completed.strftime('%Y-%m-%d') if project and project.date_completed else '' }}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technologies -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Technologies</div>
+
+          <!-- Current selection display -->
+          <div id="selectedTechDisplay" class="flex flex-wrap gap-2 mb-4 min-h-[32px]">
+            {% if project %}
+              {% for tech in project.technologies_list %}
+              <span class="tag-green selected-tech-tag" data-value="{{ tech }}">
+                {{ tech }}
+                <button type="button" onclick="removeTech('{{ tech }}')" class="ml-1 opacity-60 hover:opacity-100">
+                  <i class="fas fa-times text-xs"></i>
+                </button>
+              </span>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <!-- Category-filtered tech list -->
+            <div>
+              <label class="form-label">From Category</label>
+              <select id="techDropdown" class="form-input" onchange="addTech(this.value); this.value=''">
+                <option value="">— pick a technology —</option>
+                {% for cat, techs in technologies.items() %}
+                <optgroup label="{{ cat }}">
+                  {% for tech in techs %}
+                  <option value="{{ tech }}">{{ tech }}</option>
+                  {% endfor %}
+                </optgroup>
+                {% endfor %}
+              </select>
+            </div>
+            <!-- Manual entry -->
+            <div>
+              <label class="form-label">Add Custom</label>
+              <div class="flex gap-2">
+                <input type="text" id="customTech" class="form-input" placeholder="e.g. Rust">
+                <button type="button" onclick="addCustomTech()" class="btn-outline px-4 py-2 text-xs shrink-0">Add</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hidden inputs (submitted) -->
+          <div id="techInputs">
+            {% if project %}
+              {% for tech in project.technologies_list %}
+              <input type="hidden" name="technologies" value="{{ tech }}" class="tech-hidden-input">
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Links</div>
+          <div class="space-y-4">
+            <div>
+              <label class="form-label">GitHub URL</label>
+              <input type="url" name="github_link" class="form-input"
+                     value="{{ project.github_link if project else '' }}"
+                     placeholder="https://github.com/you/project">
+            </div>
+            <div>
+              <label class="form-label">Live Preview URL</label>
+              <input type="url" name="preview_link" class="form-input"
+                     value="{{ project.preview_link if project else '' }}"
+                     placeholder="https://myproject.com">
+            </div>
+          </div>
+        </div>
+
+        <!-- Images -->
+        <div class="card p-5 sm:p-6">
+          <div class="rule-label mb-5">Images</div>
+
+          {% if project and project.images %}
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+            {% for img in project.images %}
+            <div class="relative rounded-xl overflow-hidden group" style="background:#1a1a1a;aspect-ratio:16/9">
+              <img src="{{ url_for('static', filename=img.filename) }}" alt="{{ img.caption }}"
+                   class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2 p-3">
+                <p class="text-xs text-center truncate w-full">{{ img.caption or 'No caption' }}</p>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="delete_images" value="{{ img.id }}" class="rounded">
+                  <span class="text-xs text-red-400 font-semibold">Delete</span>
+                </label>
+              </div>
+              <div class="absolute top-2 left-2">
+                <span class="badge-muted text-xs">#{{ img.display_order }}</span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <p class="text-xs muted mb-4">Hover an image and check "Delete" to remove it on save.</p>
+          {% endif %}
+
+          <!-- Upload new images -->
+          <div id="imageDropZone"
+               class="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors"
+               style="border-color:rgba(255,255,255,0.1)"
+               ondragover="event.preventDefault();this.style.borderColor='rgba(34,197,94,0.5)'"
+               ondragleave="this.style.borderColor='rgba(255,255,255,0.1)'"
+               ondrop="handleDrop(event)"
+               onclick="document.getElementById('imageInput').click()">
+            <i class="fas fa-cloud-upload-alt text-3xl mb-3" style="color:rgba(34,197,94,0.3)"></i>
+            <p class="text-sm muted">Drag & drop images or <span class="text-green-400 font-semibold">browse</span></p>
+            <p class="text-xs muted mt-1">PNG, JPG, GIF, WEBP — max 16 MB each</p>
+          </div>
+
+          <input type="file" id="imageInput" {% if project %}name="new_images"{% else %}name="images"{% endif %}
+                 multiple accept="image/*" class="hidden" onchange="previewImages(this)">
+
+          <div id="imagePreviewGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4"></div>
+        </div>
+
+      </div><!-- /left -->
+
+      <!-- RIGHT COLUMN (settings) -->
+      <div class="space-y-5">
+
+        <!-- Status -->
+        <div class="card p-5">
+          <div class="rule-label mb-4">Status</div>
+          <div class="space-y-3">
+            <label class="flex items-center justify-between gap-3 cursor-pointer">
+              <div>
+                <p class="text-sm font-semibold">Visible</p>
+                <p class="text-xs muted">Show on the public site</p>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" name="is_visible" id="isVisible"
+                       {% if not project or project.is_visible %}checked{% endif %}
+                       class="peer sr-only">
+                <div class="w-10 h-5 rounded-full transition peer-checked:bg-green-500" style="background:rgba(255,255,255,0.1)"></div>
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5" style="background:#fff"></div>
+              </div>
+            </label>
+
+            <div class="divider my-2"></div>
+
+            <label class="flex items-center justify-between gap-3 cursor-pointer">
+              <div>
+                <p class="text-sm font-semibold">Featured</p>
+                <p class="text-xs muted">Show on the home page</p>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" name="is_featured" id="isFeatured"
+                       {% if project and project.is_featured %}checked{% endif %}
+                       class="peer sr-only">
+                <div class="w-10 h-5 rounded-full transition peer-checked:bg-green-500" style="background:rgba(255,255,255,0.1)"></div>
+                <div class="absolute top-0.5 left-0.5 w-4 h-4 rounded-full transition-transform peer-checked:translate-x-5" style="background:#fff"></div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="card p-5">
+          <div class="rule-label mb-4">Summary</div>
+          <div class="space-y-2.5 text-xs">
+            {% if project %}
+            <div class="flex justify-between">
+              <span class="muted">Created</span>
+              <span>{{ project.created_at.strftime('%d %b %Y') }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="muted">Last updated</span>
+              <span>{{ project.updated_at.strftime('%d %b %Y') if project.updated_at else '—' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="muted">Images</span>
+              <span>{{ project.images|length }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="muted">Technologies</span>
+              <span>{{ project.technologies_list|length }}</span>
+            </div>
+            {% else %}
+            <p class="muted">Fill in the details and save.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="space-y-3">
+          <button type="submit" class="btn-primary w-full py-3 text-sm justify-center">
+            <i class="fas fa-save"></i>
+            {{ 'Update Project' if project else 'Save Project' }}
+          </button>
+          <a href="{{ url_for('admin.dashboard') }}" class="btn-outline w-full py-3 text-sm justify-center">
+            Cancel
+          </a>
+        </div>
+
+        {% if project %}
+        <div class="card p-5" style="border-color:rgba(239,68,68,0.2)">
+          <p class="text-xs font-bold text-red-400 mb-2 uppercase tracking-wider">Danger Zone</p>
+          <p class="text-xs muted mb-3">Permanently delete this project and all its images.</p>
+          <button type="button" id="deleteProjectBtn" class="btn-danger w-full py-2.5 text-xs justify-center">
+            <i class="fas fa-trash"></i> Delete Project
+          </button>
+        </div>
+        {% endif %}
+
+      </div><!-- /right -->
+    </div><!-- /grid -->
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // ── Technology management ─────────────────────────
+  const selectedTechs = new Set([
+    {% if project %}
+      {% for tech in project.technologies_list %}'{{ tech }}',{% endfor %}
+    {% endif %}
+  ]);
+
+  function renderTechs() {
+    const display = document.getElementById('selectedTechDisplay');
+    const inputs  = document.getElementById('techInputs');
+    display.innerHTML = '';
+    inputs.innerHTML  = '';
+    selectedTechs.forEach(function(tech) {
+      display.innerHTML += `<span class="tag-green">${tech} <button type="button" onclick="removeTech('${tech}')" class="ml-1 opacity-60 hover:opacity-100"><i class="fas fa-times text-xs"></i></button></span>`;
+      inputs.innerHTML  += `<input type="hidden" name="technologies" value="${tech}">`;
+    });
+  }
+
+  function addTech(val) {
+    if (val && !selectedTechs.has(val)) { selectedTechs.add(val); renderTechs(); }
+  }
+
+  function removeTech(val) {
+    selectedTechs.delete(val);
+    renderTechs();
+  }
+
+  function addCustomTech() {
+    const input = document.getElementById('customTech');
+    const val = input.value.trim();
+    if (val) { addTech(val); input.value = ''; }
+  }
+
+  document.getElementById('customTech').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); addCustomTech(); }
+  });
+
+
+  // ── Image preview ─────────────────────────────────
+  function previewImages(input) {
+    const grid = document.getElementById('imagePreviewGrid');
+    grid.innerHTML = '';
+    Array.from(input.files).forEach(function(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        grid.innerHTML += `
+          <div class="relative rounded-xl overflow-hidden" style="aspect-ratio:16/9;background:#1a1a1a">
+            <img src="${e.target.result}" class="w-full h-full object-cover">
+            <div class="absolute bottom-0 inset-x-0 p-2 bg-black/40">
+              <p class="text-xs truncate text-white/70">${file.name}</p>
+            </div>
+          </div>`;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('imageDropZone').style.borderColor = 'rgba(255,255,255,0.1)';
+    const input = document.getElementById('imageInput');
+    // Transfer dropped files to input
+    const dt = new DataTransfer();
+    Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => dt.items.add(f));
+    input.files = dt.files;
+    previewImages(input);
+  }
+
+
+  // ── Delete project ────────────────────────────────
+  {% if project %}
+  document.getElementById('deleteProjectBtn').addEventListener('click', function() {
+    if (!confirm('Delete "{{ project.name }}" and all its images permanently? This cannot be undone.')) return;
+    fetch('{{ url_for("admin.delete_project", project_id=project.id) }}', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => { if (d.success) window.location.href = '{{ url_for("admin.dashboard") }}'; });
+  });
+  {% endif %}
+</script>
+{% endblock %}
