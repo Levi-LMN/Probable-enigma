@@ -7,6 +7,10 @@ import shutil
 import click
 from datetime import datetime
 
+# Load .env file FIRST before anything else reads os.environ
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.flask_client import OAuth
