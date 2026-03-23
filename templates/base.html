@@ -61,8 +61,11 @@
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Font Awesome -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <script>
@@ -78,11 +81,11 @@
   <style>
     html { scroll-behavior: smooth; }
     body { background: #f5f6f8; color: #0f172a; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(0,0,0,0.045) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; }
+    body::before { content: ''; position: absolute; inset: 0; z-index: 0; background-image: radial-gradient(circle, rgba(0,0,0,0.045) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; will-change: auto; }
     section, nav, footer { position: relative; z-index: 1; }
 
     /* NAV */
-    nav { background: rgba(245,246,248,0.92); backdrop-filter: blur(24px); border-bottom: 1px solid rgba(0,0,0,0.08); }
+    nav { background: rgba(245,246,248,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.08); will-change: transform; }
     .nav-link { font-size: 0.85rem; color: #64748b; font-weight: 400; transition: color 0.2s; position: relative; padding-bottom: 2px; }
     .nav-link:hover { color: #0f172a; }
     .nav-link.active { color: #16a34a; }
@@ -94,8 +97,8 @@
     .btn-outline:hover { border-color: rgba(0,0,0,0.28); color: #0f172a; background: rgba(0,0,0,0.04); }
 
     /* CARDS */
-    .card { background: #fff; border: 1px solid rgba(0,0,0,0.07); border-radius: 24px; transition: border-color 0.3s, background 0.3s, box-shadow 0.3s; }
-    .card:hover { border-color: rgba(22,163,74,0.25); background: #fefefe; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+    .card { background: #fff; border: 1px solid rgba(0,0,0,0.07); border-radius: 24px; transition: border-color 0.3s, box-shadow 0.3s; }
+    .card:hover { border-color: rgba(22,163,74,0.25); box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
     .card-green { border-color: rgba(22,163,74,0.2); }
     .card-green:hover { border-color: rgba(22,163,74,0.45); box-shadow: 0 4px 24px rgba(22,163,74,0.08); }
     .icon-wrap { width: 48px; height: 48px; background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.18); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
@@ -108,8 +111,8 @@
     .muted { color: #64748b; }
     .muted-sm { color: #94a3b8; }
     .divider { border-top: 1px solid rgba(0,0,0,0.08); }
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
-    .reveal.on { opacity: 1; transform: translateY(0); }
+    .reveal { opacity: 0; transform: translateY(20px) translateZ(0); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.on { opacity: 1; transform: translateY(0) translateZ(0); }
 
     /* RULE LABEL */
     .rule-label { display: flex; align-items: center; gap: 12px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #16a34a; }
@@ -120,7 +123,7 @@
     .feat::before { content: ''; width: 4px; height: 4px; background: #16a34a; border-radius: 50%; flex-shrink: 0; }
 
     /* TICKER */
-    .ticker-inner { display: flex; animation: tick 20s linear infinite; white-space: nowrap; }
+    .ticker-inner { display: flex; animation: tick 20s linear infinite; white-space: nowrap; will-change: transform; }
     @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     .tick-item { padding: 0 24px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(0,0,0,0.28); }
     .tick-dot { color: #16a34a; padding: 0 4px; }
@@ -129,7 +132,7 @@
     @keyframes ping { 0% { transform: scale(1); opacity: 1; } 75%, 100% { transform: scale(1.8); opacity: 0; } }
     .live-dot { position: relative; display: inline-flex; }
     .live-dot span { width: 7px; height: 7px; background: #16a34a; border-radius: 50%; display: block; }
-    .live-dot::before { content: ''; position: absolute; inset: 0; background: #16a34a; border-radius: 50%; animation: ping 1.6s ease-out infinite; }
+    .live-dot::before { content: ''; position: absolute; inset: 0; background: #16a34a; border-radius: 50%; animation: ping 1.6s ease-out infinite; will-change: transform, opacity; }
 
     /* TECH CHIP */
     .tech-chip { font-size: 0.72rem; padding: 3px 10px; border-radius: 100px; background: #f1f5f9; color: #475569; display: inline-block; border: 1px solid rgba(0,0,0,0.07); }
@@ -279,7 +282,7 @@
           <a href="https://github.com/levimukuha" target="_blank" class="block hover:text-slate-900 transition-colors">GitHub</a>
           <a href="https://www.linkedin.com/in/levi-mukuha-54b2391bb/" target="_blank" class="block hover:text-slate-900 transition-colors">LinkedIn</a>
           <a href="https://wa.me/+254748778517" target="_blank" class="block hover:text-slate-900 transition-colors">WhatsApp</a>
-          <a href="mailto:Levimukuha@gmail.com" class="block hover:text-slate-900 transition-colors">Email</a>
+          <a href="/cdn-cgi/l/email-protection#9ed2fbe8f7f3ebf5ebf6ffdef9f3fff7f2b0fdf1f3" class="block hover:text-slate-900 transition-colors">Email</a>
         </div>
       </div>
     </div>
@@ -293,7 +296,7 @@
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Mobile menu
   const mob = document.getElementById('mob-menu');
   document.getElementById('mob-btn').addEventListener('click', function() {
@@ -313,9 +316,13 @@
     entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('on'); });
   }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
+  // Immediately reveal elements already in view on page load (above the fold)
   setTimeout(function() {
-    document.querySelectorAll('section:first-of-type .reveal').forEach(function(el) { el.classList.add('on'); });
-  }, 80);
+    document.querySelectorAll('section:first-of-type .reveal, .reveal').forEach(function(el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) el.classList.add('on');
+    });
+  }, 50);
 </script>
 
 {% block extra_scripts %}{% endblock %}
