@@ -50,25 +50,49 @@
     </div>
     <div class="p-5">
       {% if daily_stats %}
-      <div class="relative" style="height: 180px;">
-        {% set max_val = daily_stats | map(attribute='total_visits') | max %}
-        {% set max_val = max_val if max_val > 0 else 1 %}
-        <div class="flex items-end justify-start gap-1 h-full overflow-x-auto pb-6">
+      {# BAR_AREA_PX: the pixel height bars can actually fill.
+         Total container = 180px. Bottom labels row = 20px. Top tooltip room = 20px.
+         So usable bar area = 140px. #}
+      {% set BAR_AREA = 140 %}
+      {% set max_val = daily_stats | map(attribute='total_visits') | max %}
+      {% set max_val = max_val if max_val > 0 else 1 %}
+      <div class="relative" style="height:180px;">
+        <!-- Y-axis gridlines + labels (absolute, behind bars) -->
+        <div class="absolute inset-0 flex flex-col justify-between pointer-events-none" style="padding-bottom:20px;padding-top:20px;padding-left:28px;">
+          {% for level in [max_val, (max_val // 2), 0] %}
+          <div class="flex items-center gap-2">
+            <span class="text-xs muted shrink-0" style="min-width:24px;text-align:right">{{ level }}</span>
+            <div class="flex-1 border-t border-dashed" style="border-color:rgba(255,255,255,0.05)"></div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Bars -->
+        <div class="absolute inset-0 flex items-end gap-px overflow-x-auto" style="padding-bottom:20px;padding-left:52px;padding-top:20px;">
           {% for stat in daily_stats | reverse %}
-          {% set bar_h = ((stat.total_visits / max_val) * 100) | int %}
-          <div class="flex flex-col items-center gap-1 shrink-0 group" style="min-width: max(8px, calc((100% - {{ daily_stats|length * 4 }}px) / {{ daily_stats|length }}))">
-            <div class="relative w-full rounded-t transition-all" title="{{ stat.date }} — {{ stat.total_visits }} visits"
-                 style="height:{{ [bar_h, 4] | max }}%;background:rgba(34,197,94,{% if stat.total_visits > 0 %}0.55{% else %}0.12{% endif %});min-height:4px">
-              <div class="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block text-xs font-bold text-green-400 whitespace-nowrap">{{ stat.total_visits }}</div>
+          {% set bar_px = [((stat.total_visits / max_val) * BAR_AREA) | int, 2] | max %}
+          <div class="relative flex-1 shrink-0 group flex items-end" style="min-width:6px;max-width:24px;height:{{ BAR_AREA }}px;">
+            <div class="w-full rounded-t-sm transition-all cursor-default"
+                 style="height:{{ bar_px }}px;background:rgba(34,197,94,{% if stat.total_visits > 0 %}0.6{% else %}0.1{% endif %});"
+                 title="{{ stat.date }} — {{ stat.total_visits }} visit{{ 's' if stat.total_visits != 1 else '' }}">
+            </div>
+            <!-- Tooltip on hover -->
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:flex flex-col items-center z-10 pointer-events-none">
+              <div class="bg-black/80 text-green-400 text-xs font-bold px-2 py-1 rounded whitespace-nowrap">
+                {{ stat.total_visits }}
+              </div>
+              <div class="text-xs muted whitespace-nowrap" style="font-size:0.6rem">{{ stat.date.strftime('%d %b') }}</div>
             </div>
           </div>
           {% endfor %}
         </div>
-        <!-- Y-axis labels -->
-        <div class="absolute left-0 top-0 h-full flex flex-col justify-between pointer-events-none pb-6">
-          <span class="text-xs muted">{{ max_val }}</span>
-          <span class="text-xs muted">{{ (max_val // 2) }}</span>
-          <span class="text-xs muted">0</span>
+
+        <!-- X-axis: first and last date labels -->
+        <div class="absolute bottom-0 flex justify-between w-full pointer-events-none" style="padding-left:52px;">
+          {% if daily_stats %}
+          <span class="text-xs muted" style="font-size:0.65rem">{{ (daily_stats | list | last).date.strftime('%d %b') }}</span>
+          <span class="text-xs muted" style="font-size:0.65rem">{{ (daily_stats | list | first).date.strftime('%d %b') }}</span>
+          {% endif %}
         </div>
       </div>
       {% else %}
