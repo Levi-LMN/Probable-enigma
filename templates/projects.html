@@ -5,8 +5,16 @@
 
 {% block extra_head %}
 <style>
-  /* Offset scroll so sticky filter bar doesn't cover content */
-  html { scroll-padding-top: 148px; }
+  /*
+    Nav bar   = 64px (fixed)
+    Filter bar = 44px (sticky, sits at top:64px)
+    Total offset content/anchors must clear = 108px + a little breathing room = 116px
+  */
+  html { scroll-padding-top: 116px; }
+
+  /* Give every category section a matching scroll-margin so headings
+     don't land under the sticky bar when a filter link is clicked */
+  [data-category-block] { scroll-margin-top: 116px; }
 </style>
 {% endblock %}
 
@@ -26,15 +34,15 @@
 </section>
 
 <!-- CATEGORY FILTER -->
-<div class="sticky z-40 px-4 sm:px-6 py-3" style="top:64px;background:rgba(245,246,248,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.07);border-top:1px solid rgba(0,0,0,0.05)">
-  <div class="max-w-6xl mx-auto flex flex-wrap gap-2">
+<div class="sticky z-40 px-4 sm:px-6 py-2" style="top:64px;background:rgba(245,246,248,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,0.07);border-top:1px solid rgba(0,0,0,0.05)">
+  <div class="max-w-6xl mx-auto flex flex-wrap gap-1.5">
     <a href="{{ url_for('public.projects') }}"
-       class="text-xs font-semibold px-4 py-2 rounded-full transition-all {% if not selected_category %}bg-green-600 text-white{% else %}bg-black/5 text-slate-500 border border-black/10 hover:bg-black/10 hover:text-slate-800{% endif %}">
+       class="text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all {% if not selected_category %}bg-green-600 text-white{% else %}bg-black/5 text-slate-500 border border-black/10 hover:bg-black/10 hover:text-slate-800{% endif %}">
       All
     </a>
     {% for category in categories %}
     <a href="{{ url_for('public.projects', category=category) }}"
-       class="text-xs font-semibold px-4 py-2 rounded-full transition-all {% if selected_category == category %}bg-green-600 text-white{% else %}bg-black/5 text-slate-500 border border-black/10 hover:bg-black/10 hover:text-slate-800{% endif %}">
+       class="text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all {% if selected_category == category %}bg-green-600 text-white{% else %}bg-black/5 text-slate-500 border border-black/10 hover:bg-black/10 hover:text-slate-800{% endif %}">
       {{ category }}
     </a>
     {% endfor %}
@@ -46,7 +54,7 @@
   <div class="max-w-6xl mx-auto">
     {% if projects_by_category %}
       {% for category, projects in projects_by_category.items() %}
-      <div class="mb-12 sm:mb-16 reveal">
+      <div data-category-block class="mb-12 sm:mb-16 reveal">
         <div class="flex items-center justify-between mb-6 sm:mb-8">
           <div class="rule-label flex-1">{{ category }} <span class="ml-2 font-normal muted-sm">({{ projects|length }})</span></div>
         </div>

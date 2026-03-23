@@ -8,6 +8,20 @@
   .hero-title { font-size: clamp(3.5rem, 15vw, 11rem); font-weight: 800; line-height: 0.9; letter-spacing: -0.04em; }
   .text-green-glow { color: #16a34a; text-shadow: 0 0 40px rgba(22,163,74,0.2); }
   @media (max-width: 480px) { .hero-title { font-size: clamp(3rem, 18vw, 6rem); } }
+
+  /* Word-by-word entrance animation */
+  @keyframes wordIn {
+    from { opacity: 0; transform: translateY(0.35em); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-word {
+    display: inline-block;
+    opacity: 0;
+    animation: wordIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .hero-word:nth-child(1) { animation-delay: 0.15s; }
+  .hero-word:nth-child(2) { animation-delay: 0.38s; }
+  .hero-word:nth-child(3) { animation-delay: 0.61s; }
 </style>
 {% endblock %}
 
@@ -16,8 +30,9 @@
 <!-- HERO -->
 <section class="min-h-screen flex flex-col justify-between">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 w-full pt-4 sm:pt-6 pb-6 flex-1 flex flex-col justify-center">
-    <h1 class="hero-title mb-5 sm:mb-6 reveal" style="transition-delay:0.08s">
-      Build.<br>Ship. <span class="text-green-glow">Repeat.</span>
+    <h1 class="hero-title mb-5 sm:mb-6">
+      <span class="hero-word">Build.</span><br>
+      <span class="hero-word">Ship.</span> <span class="hero-word text-green-glow">Repeat.</span>
     </h1>
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-8 reveal" style="transition-delay:0.16s">
       <p class="text-sm sm:text-base md:text-lg muted font-light leading-relaxed max-w-md">

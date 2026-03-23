@@ -607,6 +607,74 @@ def get_technologies(category):
 # BACKUP & IMPORT
 # ============================================================================
 
+@admin_bp.route('/export-json')
+@admin_required
+def export_json():
+    """Download all projects and experiences as a single JSON file."""
+    import json
+    from flask import Response
+
+    projects_data = []
+    for p in Project.query.order_by(Project.display_order, Project.created_at).all():
+        projects_data.append({
+            'id':             p.id,
+            'name':           p.name,
+            'description':    p.description,
+            'category':       p.category,
+            'technologies':   p.technologies_list,
+            'github_link':    p.github_link,
+            'preview_link':   p.preview_link,
+            'date_started':   str(p.date_started)   if p.date_started   else None,
+            'date_completed': str(p.date_completed) if p.date_completed else None,
+            'display_order':  p.display_order,
+            'is_visible':     p.is_visible,
+            'is_featured':    p.is_featured,
+            'images': [
+                {
+                    'filename':      img.filename,
+                    'caption':       img.caption,
+                    'display_order': img.display_order
+                }
+                for img in p.images
+            ],
+            'created_at':  p.created_at.isoformat()  if p.created_at  else None,
+            'updated_at':  p.updated_at.isoformat()  if p.updated_at  else None,
+        })
+
+    experiences_data = []
+    for e in WorkExperience.query.order_by(WorkExperience.display_order, WorkExperience.start_date.desc()).all():
+        experiences_data.append({
+            'id':           e.id,
+            'company_name': e.company_name,
+            'position':     e.position,
+            'description':  e.description,
+            'location':     e.location,
+            'start_date':   str(e.start_date) if e.start_date else None,
+            'end_date':     str(e.end_date)   if e.end_date   else None,
+            'is_current':   e.is_current,
+            'technologies': e.technologies,
+            'display_order': e.display_order,
+            'is_visible':   e.is_visible,
+            'created_at':   e.created_at.isoformat() if e.created_at else None,
+            'updated_at':   e.updated_at.isoformat() if e.updated_at else None,
+        })
+
+    payload = {
+        'exported_at': datetime.utcnow().isoformat() + 'Z',
+        'projects':    projects_data,
+        'experiences': experiences_data,
+    }
+
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename  = f'portfolio_data_{timestamp}.json'
+
+    return Response(
+        json.dumps(payload, indent=2, ensure_ascii=False),
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+    )
+
+
 @admin_bp.route('/backup')
 @admin_required
 def download_backup():

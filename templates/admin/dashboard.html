@@ -235,6 +235,15 @@
       <p class="text-xs muted">Download ZIP</p>
     </div>
   </a>
+  <a href="{{ url_for('admin.export_json') }}" class="card card-hover p-4 flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2)">
+      <i class="fas fa-file-code text-indigo-400 text-sm"></i>
+    </div>
+    <div>
+      <p class="text-xs font-bold">Export JSON</p>
+      <p class="text-xs muted">Projects &amp; work</p>
+    </div>
+  </a>
 </div>
 
 {% endblock %}

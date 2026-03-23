@@ -180,6 +180,9 @@
     <a href="{{ url_for('admin.download_backup') }}" class="side-link">
       <i class="fas fa-download icon"></i> Download Backup
     </a>
+    <a href="{{ url_for('admin.export_json') }}" class="side-link">
+      <i class="fas fa-file-code icon"></i> Export JSON
+    </a>
 
     <a href="{{ url_for('auth.logout') }}" class="side-link" style="color:rgba(239,68,68,0.6)" onmouseover="this.style.color='#f87171';this.style.background='rgba(239,68,68,0.07)'" onmouseout="this.style.color='rgba(239,68,68,0.6)';this.style.background=''">
       <i class="fas fa-sign-out-alt icon"></i> Sign Out
