@@ -1,50 +1,51 @@
-<!-- errors/404.html -->
 {% extends "base.html" %}
 
-{% block title %}404 - Page Not Found{% endblock %}
+{% block title %}404 — Page Not Found · Levi Mukuha{% endblock %}
 
 {% block content %}
-<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white py-20">
-    <div class="text-center px-4">
-        <div class="mb-8">
-            <i class="fas fa-search text-9xl text-primary opacity-30"></i>
-        </div>
+<section class="min-h-[80vh] flex items-center justify-center px-4 sm:px-6 py-20">
+  <div class="max-w-lg w-full text-center reveal on">
 
-        <h1 class="text-6xl md:text-8xl font-bold text-gray-900 mb-4">404</h1>
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-700 mb-6">Page Not Found</h2>
-
-        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Oops! The page you're looking for doesn't exist. It might have been moved or deleted.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{{ url_for('public.index') }}"
-               class="bg-primary text-white px-8 py-3 rounded-lg font-medium hover:bg-blue-600 transition shadow-md inline-flex items-center justify-center">
-                <i class="fas fa-home mr-2"></i> Go Home
-            </a>
-            <a href="{{ url_for('public.projects') }}"
-               class="bg-white text-primary px-8 py-3 rounded-lg font-medium hover:bg-gray-50 transition border-2 border-primary inline-flex items-center justify-center">
-                <i class="fas fa-folder mr-2"></i> View Projects
-            </a>
-        </div>
-
-        <!-- Helpful Links -->
-        <div class="mt-16">
-            <p class="text-gray-600 mb-4">You might be looking for:</p>
-            <div class="flex flex-wrap gap-3 justify-center">
-                <a href="{{ url_for('public.index') }}" class="text-primary hover:underline">Home</a>
-                <span class="text-gray-400">•</span>
-                <a href="{{ url_for('public.projects') }}" class="text-primary hover:underline">Projects</a>
-                <span class="text-gray-400">•</span>
-                <a href="{{ url_for('public.work') }}" class="text-primary hover:underline">Work Experience</a>
-                <span class="text-gray-400">•</span>
-                <a href="{{ url_for('public.about') }}" class="text-primary hover:underline">About</a>
-                <span class="text-gray-400">•</span>
-                <a href="{{ url_for('public.contact') }}" class="text-primary hover:underline">Contact</a>
-            </div>
-        </div>
+    <!-- Big number -->
+    <div class="mb-6 select-none" style="font-size:clamp(6rem,20vw,10rem);font-weight:800;letter-spacing:-0.06em;line-height:1;color:transparent;-webkit-text-stroke:2px rgba(22,163,74,0.25)">
+      404
     </div>
+
+    <div class="rule-label justify-center mb-5">Page Not Found</div>
+
+    <h1 class="sec-title mb-4" style="font-size:clamp(1.5rem,4vw,2.5rem)">
+      Nothing here.
+    </h1>
+    <p class="muted text-sm sm:text-base leading-relaxed mb-10 max-w-sm mx-auto">
+      The page you're looking for doesn't exist or may have been moved.
+    </p>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center mb-12">
+      <a href="{{ url_for('public.index') }}" class="btn-primary px-7 py-3 text-sm">
+        ← Go Home
+      </a>
+      <a href="{{ url_for('public.projects') }}" class="btn-outline px-7 py-3 text-sm">
+        View Projects
+      </a>
+    </div>
+
+    <!-- Quick links -->
+    <div class="card p-6" style="border-color:rgba(22,163,74,0.12)">
+      <p class="text-xs muted uppercase tracking-wider font-semibold mb-4">You might be looking for</p>
+      <div class="flex flex-wrap gap-x-4 gap-y-2 justify-center text-sm">
+        <a href="{{ url_for('public.index') }}"    class="muted hover:text-green-600 transition-colors">Home</a>
+        <span class="muted-sm">·</span>
+        <a href="{{ url_for('public.projects') }}" class="muted hover:text-green-600 transition-colors">Projects</a>
+        <span class="muted-sm">·</span>
+        <a href="{{ url_for('public.work') }}"     class="muted hover:text-green-600 transition-colors">Work Experience</a>
+        <span class="muted-sm">·</span>
+        <a href="{{ url_for('public.about') }}"    class="muted hover:text-green-600 transition-colors">About</a>
+        <span class="muted-sm">·</span>
+        <a href="{{ url_for('public.contact') }}"  class="muted hover:text-green-600 transition-colors">Contact</a>
+      </div>
+    </div>
+
+  </div>
 </section>
 {% endblock %}
-
-

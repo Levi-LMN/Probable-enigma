@@ -1,12 +1,37 @@
 {% extends "admin/base.html" %}
+
+{% block title %}413 — File Too Large{% endblock %}
+{% block page_title %}File Too Large{% endblock %}
+{% block page_subtitle %}Upload limit exceeded{% endblock %}
+
 {% block content %}
-<div class="max-w-md mx-auto text-center py-20">
-  <i class="fas fa-file-archive text-5xl mb-4" style="color:rgba(239,68,68,0.4)"></i>
-  <h1 class="text-xl font-bold mb-2">File Too Large</h1>
-  <p class="text-sm muted mb-6">The backup ZIP exceeds the 200 MB upload limit.<br>
-     Consider splitting your images into a smaller archive.</p>
-  <a href="{{ url_for('admin.import_backup') }}" class="btn-primary px-6 py-2.5 text-sm">
-    ← Try Again
-  </a>
+<div class="max-w-md mx-auto text-center py-20 reveal on">
+
+  <!-- Icon -->
+  <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
+       style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2)">
+    <svg class="w-7 h-7" fill="none" stroke="#f87171" stroke-width="1.8" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01"/>
+    </svg>
+  </div>
+
+  <div class="rule-label justify-center mb-4" style="color:#f87171">413 — Payload Too Large</div>
+
+  <h1 class="text-xl font-extrabold tracking-tight mb-3">File Too Large</h1>
+  <p class="text-sm muted leading-relaxed mb-8 max-w-xs mx-auto">
+    The uploaded ZIP exceeds the <span class="text-white font-semibold">200 MB</span> limit.
+    Try splitting your images into a smaller archive before importing.
+  </p>
+
+  <div class="flex flex-col sm:flex-row gap-3 justify-center">
+    <a href="{{ url_for('admin.import_backup') }}" class="btn-primary px-6 py-2.5 text-sm">
+      ← Try Again
+    </a>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn-outline px-6 py-2.5 text-sm">
+      Back to Dashboard
+    </a>
+  </div>
+
 </div>
 {% endblock %}
