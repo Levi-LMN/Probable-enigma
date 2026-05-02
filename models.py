@@ -10,6 +10,10 @@ from sqlalchemy import func
 PROJECT_CATEGORIES = [
     'Web Development',
     'Mobile Development',
+    'AI & Automation',
+    'Enterprise & Power Platform',
+    'Cybersecurity',
+    'Cloud & DevOps',
     'Penetration Testing',
     'Low-Code Development',
     'Open Source Contributions',
@@ -35,6 +39,29 @@ TECHNOLOGIES = {
         'Burp Suite', 'Metasploit', 'Wireshark', 'Nmap',
         'Python', 'Bash', 'PowerShell',
         'OWASP ZAP', 'Kali Linux', 'SQLMap', 'Nikto'
+    ],
+    'AI & Automation': [
+        'Azure OpenAI', 'IBM Granite', 'Microsoft Copilot', 'AI Builder',
+        'Python', 'Azure Cognitive Services', 'Azure Functions',
+        'Microsoft Graph API', 'Playwright', 'LangChain',
+        'Power Automate', 'Dataverse'
+    ],
+    'Enterprise & Power Platform': [
+        'Power Apps', 'Power Pages', 'Power Automate', 'Power BI',
+        'Dataverse', 'Model-Driven App', 'AI Builder',
+        'SharePoint', 'Microsoft 365', 'Power Platform Connectors',
+        '.NET', 'C#', 'AL', 'Business Central', 'Microsoft Graph API'
+    ],
+    'Cybersecurity': [
+        'Kali Linux', 'Metasploit', 'Burp Suite', 'Nmap', 'Wireshark',
+        'OWASP ZAP', 'SQLMap', 'Nikto', 'Python', 'Bash', 'PowerShell'
+    ],
+    'Cloud & DevOps': [
+        'Microsoft Azure', 'Azure Functions', 'Azure DevOps',
+        'Azure Active Directory', 'Azure Cognitive Services',
+        'AWS', 'GCP', 'Docker', 'Kubernetes',
+        'Terraform', 'Ansible', 'GitHub Actions',
+        'Python', 'Bash', 'Microsoft Graph API', 'Dataverse'
     ],
     'Low-Code Development': [
         'Power Apps', 'Power Automate', 'Power BI',
