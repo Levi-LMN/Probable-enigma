@@ -675,6 +675,373 @@ def export_json():
     )
 
 
+@admin_bp.route('/data-editor')
+@admin_required
+def data_editor():
+    """JSON data editor page — export/import projects and experiences as separate JSON files for mass editing."""
+    project_count = Project.query.count()
+    experience_count = WorkExperience.query.count()
+    return render_template('admin/data_editor.html',
+                           project_count=project_count,
+                           experience_count=experience_count)
+
+
+@admin_bp.route('/data-editor/export/projects')
+@admin_required
+def export_projects_json():
+    """Download all projects as a standalone JSON file (includes IDs for re-import)."""
+    import json
+    from flask import Response
+
+    projects_data = []
+    for p in Project.query.order_by(Project.display_order, Project.created_at).all():
+        projects_data.append({
+            'id':             p.id,
+            'name':           p.name,
+            'description':    p.description,
+            'category':       p.category,
+            'technologies':   p.technologies_list,
+            'github_link':    p.github_link,
+            'preview_link':   p.preview_link,
+            'date_started':   str(p.date_started)   if p.date_started   else None,
+            'date_completed': str(p.date_completed) if p.date_completed else None,
+            'display_order':  p.display_order,
+            'is_visible':     p.is_visible,
+            'is_featured':    p.is_featured,
+            'images': [
+                {
+                    'id':            img.id,
+                    'filename':      img.filename,
+                    'caption':       img.caption,
+                    'display_order': img.display_order
+                }
+                for img in p.images
+            ],
+            'created_at': p.created_at.isoformat() if p.created_at else None,
+            'updated_at': p.updated_at.isoformat() if p.updated_at else None,
+        })
+
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    return Response(
+        json.dumps(projects_data, indent=2, ensure_ascii=False),
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename="projects_{timestamp}.json"'}
+    )
+
+
+@admin_bp.route('/data-editor/export/experiences')
+@admin_required
+def export_experiences_json():
+    """Download all experiences as a standalone JSON file (includes IDs for re-import)."""
+    import json
+    from flask import Response
+
+    experiences_data = []
+    for e in WorkExperience.query.order_by(WorkExperience.display_order, WorkExperience.start_date.desc()).all():
+        experiences_data.append({
+            'id':            e.id,
+            'company_name':  e.company_name,
+            'position':      e.position,
+            'description':   e.description,
+            'location':      e.location,
+            'start_date':    str(e.start_date) if e.start_date else None,
+            'end_date':      str(e.end_date)   if e.end_date   else None,
+            'is_current':    e.is_current,
+            'technologies':  e.technologies,
+            'company_logo':  e.company_logo,
+            'display_order': e.display_order,
+            'is_visible':    e.is_visible,
+            'created_at':    e.created_at.isoformat() if e.created_at else None,
+            'updated_at':    e.updated_at.isoformat() if e.updated_at else None,
+        })
+
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    return Response(
+        json.dumps(experiences_data, indent=2, ensure_ascii=False),
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename="experiences_{timestamp}.json"'}
+    )
+
+
+@admin_bp.route('/data-editor/import/projects', methods=['POST'])
+@admin_required
+def import_projects_json():
+    """
+    Apply mass edits from an uploaded projects JSON file.
+    Matches records by 'id'. Updates all editable fields; image captions/order
+    can also be updated (but no new files are added — use the edit form for that).
+    Records with no matching ID in the database are skipped.
+    """
+    import json
+
+    if 'projects_file' not in request.files or not request.files['projects_file'].filename:
+        flash('No file selected.', 'danger')
+        return redirect(url_for('admin.data_editor'))
+
+    f = request.files['projects_file']
+    if not f.filename.lower().endswith('.json'):
+        flash('Please upload a .json file.', 'danger')
+        return redirect(url_for('admin.data_editor'))
+
+    try:
+        data = json.loads(f.read().decode('utf-8'))
+        if not isinstance(data, list):
+            flash('Invalid format: the JSON must be a list (array) of project objects.', 'danger')
+            return redirect(url_for('admin.data_editor'))
+
+        updated = created = skipped = 0
+        warnings = []
+
+        for item in data:
+            try:
+                project_id = item.get('id')
+                is_new = not project_id  # no id / null id means create new
+
+                if is_new:
+                    # Require at minimum a name to create a record
+                    name = str(item.get('name', '')).strip()
+                    if not name:
+                        warnings.append('Skipped a record with no "id" and no "name" — cannot create it.')
+                        skipped += 1
+                        continue
+                    project = Project(
+                        name=name,
+                        description=str(item.get('description', '')),
+                        category=str(item.get('category', 'Other')).strip(),
+                        github_link=item.get('github_link') or None,
+                        preview_link=item.get('preview_link') or None,
+                        display_order=int(item.get('display_order', 0)),
+                        is_visible=bool(item.get('is_visible', True)),
+                        is_featured=bool(item.get('is_featured', False)),
+                    )
+                    try:
+                        if item.get('date_started'):
+                            project.date_started = datetime.strptime(item['date_started'], '%Y-%m-%d').date()
+                        if item.get('date_completed'):
+                            project.date_completed = datetime.strptime(item['date_completed'], '%Y-%m-%d').date()
+                    except ValueError as ve:
+                        warnings.append(f'New project "{name}": bad date value — {ve}. Dates left blank.')
+                    for tech in item.get('technologies', []):
+                        if tech and str(tech).strip():
+                            project.technologies.append(ProjectTechnology(technology=str(tech).strip()))
+                    db.session.add(project)
+                    created += 1
+                    continue  # images need uploaded files; skip for new records
+
+                # ── Existing record: match by id and update ──────────────────
+                project = Project.query.get(project_id)
+                if not project:
+                    warnings.append(f'Skipped: no project with id={project_id} exists in the database.')
+                    skipped += 1
+                    continue
+
+                if 'name' in item and item['name']:
+                    project.name = str(item['name']).strip()
+                if 'description' in item:
+                    project.description = str(item['description'])
+                if 'category' in item and item['category']:
+                    project.category = str(item['category'])
+                if 'github_link' in item:
+                    project.github_link = item['github_link'] or None
+                if 'preview_link' in item:
+                    project.preview_link = item['preview_link'] or None
+                if 'display_order' in item:
+                    project.display_order = int(item['display_order'])
+                if 'is_visible' in item:
+                    project.is_visible = bool(item['is_visible'])
+                if 'is_featured' in item:
+                    project.is_featured = bool(item['is_featured'])
+                if 'date_started' in item:
+                    try:
+                        project.date_started = datetime.strptime(item['date_started'], '%Y-%m-%d').date() if item['date_started'] else None
+                    except ValueError:
+                        warnings.append(f'id={project_id}: bad date_started value "{item["date_started"]}" — kept original.')
+                if 'date_completed' in item:
+                    try:
+                        project.date_completed = datetime.strptime(item['date_completed'], '%Y-%m-%d').date() if item['date_completed'] else None
+                    except ValueError:
+                        warnings.append(f'id={project_id}: bad date_completed value "{item["date_completed"]}" — kept original.')
+
+                if 'technologies' in item and isinstance(item['technologies'], list):
+                    ProjectTechnology.query.filter_by(project_id=project.id).delete()
+                    for tech in item['technologies']:
+                        if tech and str(tech).strip():
+                            project.technologies.append(ProjectTechnology(technology=str(tech).strip()))
+
+                if 'images' in item and isinstance(item['images'], list):
+                    for img_data in item['images']:
+                        img_id = img_data.get('id')
+                        if not img_id:
+                            continue
+                        img = ProjectImage.query.get(img_id)
+                        if img and img.project_id == project.id:
+                            if 'caption' in img_data:
+                                img.caption = img_data['caption'] or ''
+                            if 'display_order' in img_data:
+                                img.display_order = int(img_data['display_order'])
+
+                project.updated_at = datetime.utcnow()
+                updated += 1
+
+            except Exception as e:
+                warnings.append(f'Error on id={item.get("id", "?")} ("{item.get("name", "?")}"): {e}')
+                skipped += 1
+
+        db.session.commit()
+
+        parts = []
+        if updated: parts.append(f'{updated} updated')
+        if created: parts.append(f'{created} created')
+        if skipped: parts.append(f'{skipped} skipped')
+        msg = 'Projects: ' + ', '.join(parts) + '.' if parts else 'No changes made.'
+        flash(msg, 'success' if not warnings else 'warning')
+        for w in warnings[:6]:
+            flash(w, 'warning')
+
+    except json.JSONDecodeError as e:
+        flash(f'Could not parse the JSON file: {e}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'import_projects_json error: {e}')
+        flash(f'Import failed: {e}', 'danger')
+
+    return redirect(url_for('admin.data_editor'))
+
+
+@admin_bp.route('/data-editor/import/experiences', methods=['POST'])
+@admin_required
+def import_experiences_json():
+    """
+    Apply mass edits from an uploaded experiences JSON file.
+    Matches records by 'id'. Records with no matching ID are skipped.
+    Company logos are file-based — use the edit form to change them.
+    """
+    import json
+
+    if 'experiences_file' not in request.files or not request.files['experiences_file'].filename:
+        flash('No file selected.', 'danger')
+        return redirect(url_for('admin.data_editor'))
+
+    f = request.files['experiences_file']
+    if not f.filename.lower().endswith('.json'):
+        flash('Please upload a .json file.', 'danger')
+        return redirect(url_for('admin.data_editor'))
+
+    try:
+        data = json.loads(f.read().decode('utf-8'))
+        if not isinstance(data, list):
+            flash('Invalid format: the JSON must be a list (array) of experience objects.', 'danger')
+            return redirect(url_for('admin.data_editor'))
+
+        updated = created = skipped = 0
+        warnings = []
+
+        for item in data:
+            try:
+                exp_id = item.get('id')
+                is_new = not exp_id
+
+                if is_new:
+                    # Require company_name, position, and start_date to create
+                    company  = str(item.get('company_name', '')).strip()
+                    position = str(item.get('position', '')).strip()
+                    start_date_raw = item.get('start_date')
+                    if not company or not position or not start_date_raw:
+                        warnings.append(f'Skipped new record "{company or "?"}" — company_name, position, and start_date are all required to create.')
+                        skipped += 1
+                        continue
+                    try:
+                        start_date = datetime.strptime(start_date_raw, '%Y-%m-%d').date()
+                    except ValueError:
+                        warnings.append(f'Skipped new record "{company}": bad start_date "{start_date_raw}".')
+                        skipped += 1
+                        continue
+                    is_current = bool(item.get('is_current', False))
+                    end_date = None
+                    if not is_current and item.get('end_date'):
+                        try:
+                            end_date = datetime.strptime(item['end_date'], '%Y-%m-%d').date()
+                        except ValueError:
+                            warnings.append(f'New experience "{company}": bad end_date — left blank.')
+                    exp = WorkExperience(
+                        company_name=company,
+                        position=position,
+                        description=str(item.get('description', '')),
+                        location=item.get('location') or None,
+                        technologies=item.get('technologies') or None,
+                        start_date=start_date,
+                        end_date=end_date,
+                        is_current=is_current,
+                        display_order=int(item.get('display_order', 0)),
+                        is_visible=bool(item.get('is_visible', True)),
+                    )
+                    db.session.add(exp)
+                    created += 1
+                    continue
+
+                # ── Existing record: match by id and update ──────────────────
+                exp = WorkExperience.query.get(exp_id)
+                if not exp:
+                    warnings.append(f'Skipped: no experience with id={exp_id} exists in the database.')
+                    skipped += 1
+                    continue
+
+                if 'company_name' in item and item['company_name']:
+                    exp.company_name = str(item['company_name']).strip()
+                if 'position' in item and item['position']:
+                    exp.position = str(item['position']).strip()
+                if 'description' in item:
+                    exp.description = str(item['description'])
+                if 'location' in item:
+                    exp.location = item['location'] or None
+                if 'technologies' in item:
+                    exp.technologies = item['technologies'] or None
+                if 'is_current' in item:
+                    exp.is_current = bool(item['is_current'])
+                if 'display_order' in item:
+                    exp.display_order = int(item['display_order'])
+                if 'is_visible' in item:
+                    exp.is_visible = bool(item['is_visible'])
+                if 'start_date' in item:
+                    try:
+                        if item['start_date']:
+                            exp.start_date = datetime.strptime(item['start_date'], '%Y-%m-%d').date()
+                    except ValueError:
+                        warnings.append(f'id={exp_id}: bad start_date "{item["start_date"]}" — kept original.')
+                if 'end_date' in item:
+                    try:
+                        exp.end_date = datetime.strptime(item['end_date'], '%Y-%m-%d').date() if item['end_date'] else None
+                    except ValueError:
+                        warnings.append(f'id={exp_id}: bad end_date "{item["end_date"]}" — kept original.')
+
+                exp.updated_at = datetime.utcnow()
+                updated += 1
+
+            except Exception as e:
+                warnings.append(f'Error on id={item.get("id", "?")} ("{item.get("company_name", "?")}"): {e}')
+                skipped += 1
+
+        db.session.commit()
+
+        parts = []
+        if updated: parts.append(f'{updated} updated')
+        if created: parts.append(f'{created} created')
+        if skipped: parts.append(f'{skipped} skipped')
+        msg = 'Experiences: ' + ', '.join(parts) + '.' if parts else 'No changes made.'
+        flash(msg, 'success' if not warnings else 'warning')
+        for w in warnings[:6]:
+            flash(w, 'warning')
+
+    except json.JSONDecodeError as e:
+        flash(f'Could not parse the JSON file: {e}', 'danger')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'import_experiences_json error: {e}')
+        flash(f'Import failed: {e}', 'danger')
+
+    return redirect(url_for('admin.data_editor'))
+
+
 @admin_bp.route('/backup')
 @admin_required
 def download_backup():

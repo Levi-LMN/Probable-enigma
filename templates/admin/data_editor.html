@@ -1,0 +1,337 @@
+{% extends "admin/base.html" %}
+
+{% block title %}JSON Data Editor{% endblock %}
+{% block page_title %}JSON Data Editor{% endblock %}
+{% block page_subtitle %}Export, edit in any text editor, then re-import to apply changes{% endblock %}
+
+{% block extra_head %}
+<style>
+  .step-badge {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3);
+    color: #4ade80; font-size: 0.65rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .upload-zone {
+    border: 1.5px dashed rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: rgba(34,197,94,0.4);
+    background: rgba(34,197,94,0.03);
+  }
+  .upload-zone input[type="file"] { display: none; }
+  .file-chosen { color: #4ade80; font-size: 0.8rem; font-weight: 600; margin-top: 8px; }
+  .rule-note {
+    font-size: 0.7rem; color: rgba(255,255,255,0.35);
+    border-left: 2px solid rgba(255,255,255,0.1);
+    padding-left: 10px; line-height: 1.6;
+  }
+  .field-pill {
+    display: inline-block; font-size: 0.62rem; font-weight: 700;
+    font-family: ui-monospace, monospace;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; padding: 2px 7px; color: rgba(255,255,255,0.55);
+    margin: 2px;
+  }
+  .field-pill.readonly { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.2); color: rgba(239,68,68,0.6); }
+  .field-pill.writable { background: rgba(34,197,94,0.07); border-color: rgba(34,197,94,0.2); color: #4ade80; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HOW IT WORKS -->
+<div class="card p-6 mb-6">
+  <div class="rule-label mb-5">How It Works</div>
+  <div class="grid sm:grid-cols-3 gap-5">
+    <div class="flex gap-3">
+      <div class="step-badge">1</div>
+      <div>
+        <p class="text-sm font-bold mb-1">Export</p>
+        <p class="text-xs muted leading-relaxed">Download your projects or experiences as a JSON file. Every record includes its database <code class="field-pill">id</code>.</p>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <div class="step-badge">2</div>
+      <div>
+        <p class="text-sm font-bold mb-1">Edit</p>
+        <p class="text-xs muted leading-relaxed">Open the file in VS Code, Notepad++, or any editor. Change any <span class="field-pill writable">editable</span> field across as many records as you like at once.</p>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <div class="step-badge">3</div>
+      <div>
+        <p class="text-sm font-bold mb-1">Re-import</p>
+        <p class="text-xs muted leading-relaxed">Upload the edited file. Every record is matched by <code class="field-pill">id</code> and updated in place — nothing else is touched.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TWO PANELS: PROJECTS + EXPERIENCES -->
+<div class="grid lg:grid-cols-2 gap-6">
+
+  <!-- ===== PROJECTS ===== -->
+  <div class="card">
+    <div class="px-6 py-4 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <div class="rule-label mb-0.5">Projects
+        <span class="ml-1 font-normal muted text-xs">({{ project_count }} records)</span>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="px-6 py-5 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <p class="text-xs font-bold uppercase tracking-wider muted mb-3">Step 1 — Download</p>
+      <a href="{{ url_for('admin.export_projects_json') }}"
+         class="btn-primary text-xs px-5 py-2.5 w-full justify-center">
+        <i class="fas fa-download text-xs"></i>
+        Download projects.json
+      </a>
+      <p class="text-xs muted mt-2.5 text-center">{{ project_count }} project{{ 's' if project_count != 1 }} · includes IDs, technologies, image metadata</p>
+    </div>
+
+    <!-- Field reference -->
+    <div class="px-6 py-4 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <p class="text-xs font-bold uppercase tracking-wider muted mb-3">Field Reference</p>
+      <div class="mb-2">
+        <p class="text-xs muted mb-1.5">Editable fields <span style="color:rgba(34,197,94,0.7)">(safe to change)</span></p>
+        <div>
+          <span class="field-pill writable">name</span>
+          <span class="field-pill writable">description</span>
+          <span class="field-pill writable">category</span>
+          <span class="field-pill writable">technologies</span>
+          <span class="field-pill writable">github_link</span>
+          <span class="field-pill writable">preview_link</span>
+          <span class="field-pill writable">date_started</span>
+          <span class="field-pill writable">date_completed</span>
+          <span class="field-pill writable">display_order</span>
+          <span class="field-pill writable">is_visible</span>
+          <span class="field-pill writable">is_featured</span>
+          <span class="field-pill writable">images[].caption</span>
+          <span class="field-pill writable">images[].display_order</span>
+        </div>
+      </div>
+      <div class="mt-3">
+        <p class="text-xs muted mb-1.5">Read-only fields <span style="color:rgba(239,68,68,0.7)">(changes are ignored)</span></p>
+        <div>
+          <span class="field-pill readonly">id</span>
+          <span class="field-pill readonly">images[].filename</span>
+          <span class="field-pill readonly">created_at</span>
+          <span class="field-pill readonly">updated_at</span>
+        </div>
+      </div>
+      <p class="rule-note mt-3">
+        <strong>technologies</strong> must be a JSON array of strings, e.g. <code>["Flask", "React"]</code><br>
+        <strong>dates</strong> use YYYY-MM-DD format or <code>null</code><br>
+        <strong>is_visible / is_featured</strong> use <code>true</code> or <code>false</code><br>
+        To add/remove images, use the individual project edit form instead.
+      </p>
+    </div>
+
+    <!-- Upload -->
+    <div class="px-6 py-5">
+      <p class="text-xs font-bold uppercase tracking-wider muted mb-3">Step 3 — Re-import Edited File</p>
+      <form method="POST" action="{{ url_for('admin.import_projects_json') }}" enctype="multipart/form-data" id="projects-form">
+        <div class="upload-zone" id="projects-drop" onclick="document.getElementById('projects-file').click()">
+          <i class="fas fa-file-upload text-2xl mb-3" style="color:rgba(34,197,94,0.3)"></i>
+          <p class="text-sm font-semibold mb-1">Click to choose file</p>
+          <p class="text-xs muted">or drag & drop your edited projects.json here</p>
+          <p class="file-chosen hidden" id="projects-file-name"></p>
+          <input type="file" name="projects_file" id="projects-file" accept=".json" required>
+        </div>
+
+        <div class="mt-4 p-4 rounded-xl" style="background:rgba(234,179,8,0.05);border:1px solid rgba(234,179,8,0.15)">
+          <div class="flex gap-2.5">
+            <i class="fas fa-exclamation-triangle text-yellow-400 text-xs mt-0.5 shrink-0"></i>
+            <p class="text-xs" style="color:rgba(234,179,8,0.8)">
+              This will <strong>overwrite</strong> the matching database records immediately. There is no undo — download a fresh export first if you want a backup.
+            </p>
+          </div>
+        </div>
+
+        <button type="submit" id="projects-submit" disabled
+                class="btn-primary text-xs px-5 py-2.5 w-full justify-center mt-4 opacity-40 cursor-not-allowed"
+                style="transition:opacity 0.2s">
+          <i class="fas fa-upload text-xs"></i>
+          Apply Changes to Projects
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== EXPERIENCES ===== -->
+  <div class="card">
+    <div class="px-6 py-4 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <div class="rule-label mb-0.5">Work Experience
+        <span class="ml-1 font-normal muted text-xs">({{ experience_count }} records)</span>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="px-6 py-5 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <p class="text-xs font-bold uppercase tracking-wider muted mb-3">Step 1 — Download</p>
+      <a href="{{ url_for('admin.export_experiences_json') }}"
+         class="btn-primary text-xs px-5 py-2.5 w-full justify-center">
+        <i class="fas fa-download text-xs"></i>
+        Download experiences.json
+      </a>
+      <p class="text-xs muted mt-2.5 text-center">{{ experience_count }} experience{{ 's' if experience_count != 1 }} · includes IDs and all text fields</p>
+    </div>
+
+    <!-- Field reference -->
+    <div class="px-6 py-4 border-b" style="border-color:rgba(255,255,255,0.06)">
+      <p class="text-xs font-bold uppercase tracking-wider muted mb-3">Field Reference</p>
+      <div class="mb-2">
+        <p class="text-xs muted mb-1.5">Editable fields <span style="color:rgba(34,197,94,0.7)">(safe to change)</span></p>
+        <div>
+          <span class="field-pill writable">company_name</span>
+          <span class="field-pill writable">position</span>
+          <span class="field-pill writable">description</span>
+          <span class="field-pill writable">location</span>
+          <span class="field-pill writable">technologies</span>
+          <span class="field-pill writable">start_date</span>
+          <span class="field-pill writable">end_date</span>
+          <span class="field-pill writable">is_current</span>
+          <span class="field-pill writable">display_order</span>
+          <span class="field-pill writable">is_visible</span>
+        </div>
+      </div>
+      <div class="mt-3">
+        <p class="text-xs muted mb-1.5">Read-only fields <span style="color:rgba(239,68,68,0.7)">(changes are ignored)</span></p>
+        <div>
+          <span class="field-pill readonly">id</span>
+          <span class="field-pill readonly">company_logo</span>
+          <span class="field-pill readonly">created_at</span>
+          <span class="field-pill readonly">updated_at</span>
+        </div>
+      </div>
+      <p class="rule-note mt-3">
+        <strong>technologies</strong> is a plain string (comma-separated), e.g. <code>"Python, Docker, AWS"</code><br>
+        <strong>dates</strong> use YYYY-MM-DD format or <code>null</code><br>
+        <strong>is_current: true</strong> means the role is ongoing — set <strong>end_date</strong> to <code>null</code> in that case.<br>
+        To change a company logo, use the individual experience edit form.
+      </p>
+    </div>
+
+    <!-- Upload -->
+    <div class="px-6 py-5">
+      <p class="text-xs font-bold uppercase tracking-wider muted mb-3">Step 3 — Re-import Edited File</p>
+      <form method="POST" action="{{ url_for('admin.import_experiences_json') }}" enctype="multipart/form-data" id="experiences-form">
+        <div class="upload-zone" id="exp-drop" onclick="document.getElementById('exp-file').click()">
+          <i class="fas fa-file-upload text-2xl mb-3" style="color:rgba(34,197,94,0.3)"></i>
+          <p class="text-sm font-semibold mb-1">Click to choose file</p>
+          <p class="text-xs muted">or drag & drop your edited experiences.json here</p>
+          <p class="file-chosen hidden" id="exp-file-name"></p>
+          <input type="file" name="experiences_file" id="exp-file" accept=".json" required>
+        </div>
+
+        <div class="mt-4 p-4 rounded-xl" style="background:rgba(234,179,8,0.05);border:1px solid rgba(234,179,8,0.15)">
+          <div class="flex gap-2.5">
+            <i class="fas fa-exclamation-triangle text-yellow-400 text-xs mt-0.5 shrink-0"></i>
+            <p class="text-xs" style="color:rgba(234,179,8,0.8)">
+              This will <strong>overwrite</strong> the matching database records immediately. There is no undo — download a fresh export first if you want a backup.
+            </p>
+          </div>
+        </div>
+
+        <button type="submit" id="exp-submit" disabled
+                class="btn-primary text-xs px-5 py-2.5 w-full justify-center mt-4 opacity-40 cursor-not-allowed"
+                style="transition:opacity 0.2s">
+          <i class="fas fa-upload text-xs"></i>
+          Apply Changes to Experiences
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- TIPS -->
+<div class="card p-6 mt-6">
+  <div class="rule-label mb-4">Tips for Editing JSON</div>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div>
+      <p class="text-xs font-bold mb-1.5"><i class="fas fa-sort-amount-up text-green-400 mr-1.5"></i>Reordering</p>
+      <p class="text-xs muted leading-relaxed">Change <code class="field-pill writable">display_order</code> values (lower = first). You can number them 1, 2, 3 or use gaps like 10, 20, 30.</p>
+    </div>
+    <div>
+      <p class="text-xs font-bold mb-1.5"><i class="fas fa-toggle-on text-green-400 mr-1.5"></i>Bulk hide / show</p>
+      <p class="text-xs muted leading-relaxed">Set <code class="field-pill writable">is_visible</code> to <code>false</code> across multiple records at once instead of toggling one by one.</p>
+    </div>
+    <div>
+      <p class="text-xs font-bold mb-1.5"><i class="fas fa-star text-green-400 mr-1.5"></i>Featured projects</p>
+      <p class="text-xs muted leading-relaxed">Toggle <code class="field-pill writable">is_featured</code> on your best work to control what appears on the home page.</p>
+    </div>
+    <div>
+      <p class="text-xs font-bold mb-1.5"><i class="fas fa-shield-alt text-green-400 mr-1.5"></i>Safety</p>
+      <p class="text-xs muted leading-relaxed">Records with an <code class="field-pill readonly">id</code> that doesn't exist in the DB are silently skipped — you won't accidentally create duplicates.</p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // ── File picker feedback & submit enable ──────────────────────────────────
+  function wireFilePicker(inputId, labelId, submitId) {
+    const input  = document.getElementById(inputId);
+    const label  = document.getElementById(labelId);
+    const submit = document.getElementById(submitId);
+
+    input.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        label.textContent = this.files[0].name;
+        label.classList.remove('hidden');
+        submit.disabled = false;
+        submit.classList.remove('opacity-40', 'cursor-not-allowed');
+      } else {
+        label.classList.add('hidden');
+        submit.disabled = true;
+        submit.classList.add('opacity-40', 'cursor-not-allowed');
+      }
+    });
+  }
+
+  wireFilePicker('projects-file', 'projects-file-name', 'projects-submit');
+  wireFilePicker('exp-file',      'exp-file-name',      'exp-submit');
+
+  // ── Drag & drop ───────────────────────────────────────────────────────────
+  function wireDrop(dropZoneId, inputId) {
+    const zone  = document.getElementById(dropZoneId);
+    const input = document.getElementById(inputId);
+
+    zone.addEventListener('dragover',  function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function()  { this.classList.remove('drag-over'); });
+    zone.addEventListener('drop',      function(e) {
+      e.preventDefault();
+      this.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.name.endsWith('.json')) {
+        // Manually assign to the input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+
+  wireDrop('projects-drop', 'projects-file');
+  wireDrop('exp-drop',      'exp-file');
+
+  // ── Confirm before submitting ─────────────────────────────────────────────
+  ['projects-form', 'experiences-form'].forEach(function(formId) {
+    document.getElementById(formId).addEventListener('submit', function(e) {
+      if (!confirm('Apply these changes? This will overwrite matching records in the database immediately.')) {
+        e.preventDefault();
+      }
+    });
+  });
+</script>
+{% endblock %}
