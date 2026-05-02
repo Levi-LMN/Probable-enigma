@@ -831,9 +831,35 @@ def import_projects_json():
                 # ── Existing record: match by id and update ──────────────────
                 project = Project.query.get(project_id)
                 if not project:
-                    warnings.append(f'Skipped: no project with id={project_id} exists in the database.')
-                    skipped += 1
-                    continue
+                    # ID not found in DB — create a new record instead of skipping
+                    name = str(item.get('name', '')).strip()
+                    if not name:
+                        warnings.append(f'Skipped id={project_id}: no matching record and no "name" to create one.')
+                        skipped += 1
+                        continue
+                    project = Project(
+                        name=name,
+                        description=str(item.get('description', '')),
+                        category=str(item.get('category', 'Other')).strip(),
+                        github_link=item.get('github_link') or None,
+                        preview_link=item.get('preview_link') or None,
+                        display_order=int(item.get('display_order', 0)),
+                        is_visible=bool(item.get('is_visible', True)),
+                        is_featured=bool(item.get('is_featured', False)),
+                    )
+                    try:
+                        if item.get('date_started'):
+                            project.date_started = datetime.strptime(item['date_started'], '%Y-%m-%d').date()
+                        if item.get('date_completed'):
+                            project.date_completed = datetime.strptime(item['date_completed'], '%Y-%m-%d').date()
+                    except ValueError as ve:
+                        warnings.append(f'New project "{name}" (id={project_id}): bad date — {ve}. Dates left blank.')
+                    for tech in item.get('technologies', []):
+                        if tech and str(tech).strip():
+                            project.technologies.append(ProjectTechnology(technology=str(tech).strip()))
+                    db.session.add(project)
+                    created += 1
+                    continue  # no image files to process for newly created records
 
                 if 'name' in item and item['name']:
                     project.name = str(item['name']).strip()
